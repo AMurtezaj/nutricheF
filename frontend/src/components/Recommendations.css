@@ -1,0 +1,16 @@
+.recommendations-container {
+  padding-bottom: 3rem;
+}
+
+.recommendation-card {
+  position: relative;
+}
+
+.recommendation-reason {
+  background: rgba(255, 107, 53, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+}
+
+

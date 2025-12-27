@@ -1,0 +1,18 @@
+.landing-page {
+  min-height: 100vh;
+}
+
+.hero-cta {
+  margin-top: 2rem;
+}
+
+.feature-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.card-modern:hover .feature-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+

@@ -1,0 +1,41 @@
+.recipe-detail-container {
+  padding-bottom: 3rem;
+}
+
+.recipe-detail-image {
+  font-size: 8rem;
+  line-height: 1;
+}
+
+.ingredient-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ingredient-item:last-child {
+  border-bottom: none;
+}
+
+.macro-breakdown {
+  display: flex;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.macro-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: width 0.3s ease;
+}
+
+.nutrition-list {
+  margin-top: 1rem;
+}
+
+

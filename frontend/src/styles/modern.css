@@ -1,0 +1,628 @@
+/* Modern UI Styles for NutriChef AI */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* Color Palette - Fresh & Healthy */
+:root {
+  --primary: #FF6B35;
+  --primary-dark: #E85A2B;
+  --primary-light: #FF8A65;
+  --secondary: #4ECDC4;
+  --secondary-dark: #3BA89C;
+  --accent: #FFE66D;
+  --success: #95E1D3;
+  --success-dark: #6BC4B3;
+  --background: #F8F9FA;
+  --background-light: #FFFFFF;
+  --text-dark: #2C3E50;
+  --text-light: #7F8C8D;
+  --border: #E0E0E0;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-lg: rgba(0, 0, 0, 0.15);
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--background);
+  color: var(--text-dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-dark);
+}
+
+/* Modern Navbar */
+.navbar-modern {
+  background: var(--background-light) !important;
+  box-shadow: 0 2px 10px var(--shadow);
+  padding: 1rem 0;
+  transition: all 0.3s ease;
+}
+
+.navbar-brand {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary) !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-brand:hover {
+  color: var(--primary-dark) !important;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: var(--text-dark) !important;
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: var(--background);
+  color: var(--primary) !important;
+}
+
+/* Modern Buttons */
+.btn-modern {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  padding: 0.75rem 2rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary-modern {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+}
+
+.btn-primary-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--shadow-lg);
+  color: white;
+}
+
+.btn-secondary-modern {
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+  color: white;
+}
+
+.btn-secondary-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--shadow-lg);
+  color: white;
+}
+
+.btn-outline-modern {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline-modern:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Modern Cards */
+.card-modern {
+  background: var(--background-light);
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px var(--shadow);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px var(--shadow-lg);
+}
+
+.card-header-modern {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  font-weight: 600;
+  padding: 1.25rem;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+.card-body-modern {
+  padding: 1.5rem;
+}
+
+/* Stats Cards */
+.stat-card {
+  background: linear-gradient(135deg, var(--background-light) 0%, #FFFFFF 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
+  transition: all 0.3s ease;
+  border-left: 4px solid var(--primary);
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px var(--shadow-lg);
+}
+
+.stat-card.success {
+  border-left-color: var(--success-dark);
+}
+
+.stat-card.secondary {
+  border-left-color: var(--secondary);
+}
+
+.stat-card.accent {
+  border-left-color: var(--accent);
+}
+
+.stat-value {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0.5rem 0;
+}
+
+.stat-label {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* Form Styles */
+.form-control-modern {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.form-control-modern:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+}
+
+.form-label-modern {
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  padding: 6rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+  opacity: 0.3;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+/* Ingredient Selector */
+.ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.ingredient-chip {
+  background: var(--background-light);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  font-weight: 500;
+}
+
+.ingredient-chip:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.ingredient-chip.selected {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-color: var(--primary);
+  color: white;
+}
+
+.ingredient-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  margin: 0.25rem;
+  font-weight: 500;
+}
+
+.ingredient-tag .close {
+  cursor: pointer;
+  margin-left: 0.5rem;
+  opacity: 0.8;
+}
+
+.ingredient-tag .close:hover {
+  opacity: 1;
+}
+
+/* Recipe Cards */
+.recipe-card {
+  background: var(--background-light);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px var(--shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.recipe-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px var(--shadow-lg);
+}
+
+.recipe-image {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+}
+
+.recipe-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.recipe-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+}
+
+.recipe-description {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.recipe-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.recipe-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+
+.match-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--success-dark);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+/* Nutrition Panel */
+.nutrition-panel {
+  background: var(--background-light);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
+  position: sticky;
+  top: 2rem;
+}
+
+.nutrition-chart {
+  margin: 1.5rem 0;
+}
+
+.nutrition-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.nutrition-item:last-child {
+  border-bottom: none;
+}
+
+.nutrition-label {
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.nutrition-value {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Progress Bars */
+.progress-modern {
+  height: 12px;
+  border-radius: 10px;
+  background-color: var(--border);
+  overflow: hidden;
+}
+
+.progress-bar-modern {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  transition: width 0.6s ease;
+}
+
+.progress-bar-modern.success {
+  background: linear-gradient(90deg, var(--success-dark) 0%, var(--success) 100%);
+}
+
+/* Toast Notifications */
+.toast-modern {
+  background: var(--background-light);
+  border-radius: 12px;
+  box-shadow: 0 8px 16px var(--shadow-lg);
+  border-left: 4px solid var(--success-dark);
+}
+
+/* Loading States */
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, #E8E8E8 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+  background: var(--background-light);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+/* Split Screen Layout */
+.split-screen {
+  min-height: 100vh;
+  display: flex;
+}
+
+.split-left {
+  flex: 1;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  padding: 3rem;
+}
+
+.split-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: var(--background);
+}
+
+.split-content {
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-light);
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+}
+
+.empty-state-text {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .split-screen {
+    flex-direction: column;
+  }
+  
+  .split-left {
+    display: none;
+  }
+  
+  .split-right {
+    padding: 2rem 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .ingredient-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
+
+/* Utility Classes */
+.text-primary-modern {
+  color: var(--primary) !important;
+}
+
+.bg-primary-modern {
+  background-color: var(--primary) !important;
+}
+
+.shadow-modern {
+  box-shadow: 0 4px 6px var(--shadow) !important;
+}
+
+.shadow-modern-lg {
+  box-shadow: 0 8px 16px var(--shadow-lg) !important;
+}
+
+.rounded-modern {
+  border-radius: 16px !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Rating Stars */
+.rating-stars {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.star {
+  font-size: 1.5rem;
+  color: var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.star.active,
+.star:hover {
+  color: var(--accent);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+
