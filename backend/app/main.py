@@ -6,7 +6,8 @@ from app.controllers import (
     user_router,
     meal_router,
     nutrition_router,
-    recommendation_router
+    recommendation_router,
+    ai_recipe_router
 )
 from app.repositories.database import init_db
 
@@ -33,6 +34,7 @@ app.include_router(user_router)
 app.include_router(meal_router)
 app.include_router(nutrition_router)
 app.include_router(recommendation_router)
+app.include_router(ai_recipe_router)
 
 
 @app.on_event("startup")

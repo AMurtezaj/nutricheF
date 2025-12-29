@@ -1,5 +1,5 @@
 """Meal model."""
-from sqlalchemy import Column, Integer, String, Float, Text, Boolean
+from sqlalchemy import Column, Integer, String, Float, Text, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -25,6 +25,14 @@ class Meal(Base):
     
     # Serving information
     serving_size = Column(String(100))  # e.g., "1 cup", "200g"
+    
+    # Ingredients (comma-separated list for AI model training)
+    ingredients = Column(Text)  # e.g., "chicken, rice, tomatoes, onions"
+    
+    # Recipe metadata
+    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # NULL for system meals
+    average_rating = Column(Float, default=0.0)  # Average rating from users
+    rating_count = Column(Integer, default=0)  # Number of ratings
     
     # Dietary tags
     is_vegetarian = Column(Boolean, default=False)
