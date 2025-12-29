@@ -16,6 +16,8 @@ export const userAPI = {
   update: (userId, userData) => api.put(`/api/users/${userId}`, userData),
   updatePreferences: (userId, preferences) => 
     api.put(`/api/users/${userId}/preferences`, preferences),
+  getPreferences: (userId) =>
+    api.get(`/api/users/${userId}/preferences`),
 };
 
 // Meal API
