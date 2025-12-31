@@ -64,3 +64,5 @@ The frontend communicates with the backend API through the `services/api.js` mod
 Make sure the backend API is running on the configured URL (default: http://localhost:8000).
 
 
+
+

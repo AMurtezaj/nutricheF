@@ -38,3 +38,5 @@ class Preference(Base):
         return f"<Preference(user_id={self.user_id})>"
 
 
+
+

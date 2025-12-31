@@ -66,3 +66,5 @@ def get_recommendations(
         raise HTTPException(status_code=404, detail=str(e))
 
 
+
+
