@@ -92,6 +92,22 @@ class UserService:
         preference = PreferenceRepository.create_or_update(db, user_id, preference_data)
         return preference
 
+    @staticmethod
+    def get_user_preferences(db: Session, user_id: int) -> Optional[Dict]:
+        """Get user preferences for a given user. Create default if none exist."""
+        from app.repositories.user_repository import UserRepository  # Local import to avoid circular
+
+        # Ensure user exists
+        user = UserRepository.get_by_id(db, user_id)
+        if not user:
+            return None
+
+        preference = PreferenceRepository.get_by_user_id(db, user_id)
+        if not preference:
+            # Create a default preference record so frontend always gets a consistent object
+            preference = PreferenceRepository.create(db, {"user_id": user_id})
+        return preference
+
 
 
 

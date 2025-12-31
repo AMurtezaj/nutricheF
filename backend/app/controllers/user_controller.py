@@ -53,6 +53,26 @@ class PreferenceUpdate(BaseModel):
     preferred_fat_ratio: float = None
 
 
+class PreferenceResponse(BaseModel):
+    id: int
+    user_id: int
+    vegetarian: Optional[bool] = None
+    vegan: Optional[bool] = None
+    gluten_free: Optional[bool] = None
+    dairy_free: Optional[bool] = None
+    nut_free: Optional[bool] = None
+    halal: Optional[bool] = None
+    kosher: Optional[bool] = None
+    preferred_cuisine: Optional[str] = None
+    disliked_ingredients: Optional[str] = None
+    favorite_ingredients: Optional[str] = None
+    preferred_protein_ratio: Optional[float] = None
+    preferred_carb_ratio: Optional[float] = None
+    preferred_fat_ratio: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
 class UserResponse(BaseModel):
     id: int
     email: str
@@ -122,6 +142,15 @@ def update_user_preferences(
     preference_data = preferences.dict(exclude_none=True)
     updated_preference = UserService.update_user_preferences(db, user_id, preference_data)
     return updated_preference
+
+
+@router.get("/{user_id}/preferences", response_model=PreferenceResponse)
+def get_user_preferences(user_id: int, db: Session = Depends(get_db)):
+    """Get user dietary preferences."""
+    preference = UserService.get_user_preferences(db, user_id)
+    if not preference:
+        raise HTTPException(status_code=404, detail="User not found")
+    return preference
 
 
 @router.get("", response_model=List[UserResponse])

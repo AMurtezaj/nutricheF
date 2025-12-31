@@ -5,11 +5,44 @@ import './UserProfile.css';
 
 function UserProfile({ currentUserId, setCurrentUserId }) {
   const [user, setUser] = useState(null);
-  const [preferences, setPreferences] = useState({});
+  const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editMode, setEditMode] = useState(false);
+  const [prefEditMode, setPrefEditMode] = useState(false);
+
+  const getErrorMessage = (err, fallback) => {
+    const detail = err?.response?.data?.detail;
+    if (!detail) return fallback;
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+      return detail
+        .map((item) => {
+          if (!item) return null;
+          const rawMsg = item.msg || '';
+          // Make generic Pydantic string errors more user-friendly
+          if (rawMsg.includes('Input should be a valid string')) {
+            return 'This field is required';
+          }
+          return rawMsg || JSON.stringify(item);
+        })
+        .filter(Boolean)
+        .join(' | ');
+    }
+    try {
+      return JSON.stringify(detail);
+    } catch {
+      return fallback;
+    }
+  };
+
+  // Scroll to top when a new error or success message appears
+  useEffect(() => {
+    if (error || success) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [error, success]);
 
   useEffect(() => {
     if (currentUserId) {
@@ -28,7 +61,14 @@ function UserProfile({ currentUserId, setCurrentUserId }) {
   };
 
   const loadPreferences = async () => {
-    // Preferences are loaded with user, but we'll handle them separately
+    try {
+      const response = await userAPI.getPreferences(currentUserId);
+      setPreferences(response.data);
+    } catch (err) {
+      // If preferences don't exist yet or fail to load, we can safely ignore and treat as empty
+      console.error('Failed to load preferences', err);
+      setPreferences(null);
+    }
   };
 
   const handleUpdateUser = async (e) => {
@@ -53,7 +93,7 @@ function UserProfile({ currentUserId, setCurrentUserId }) {
       loadUser();
       setEditMode(false);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to update profile');
+      setError(getErrorMessage(err, 'Failed to update profile'));
     } finally {
       setLoading(false);
     }
@@ -82,9 +122,10 @@ function UserProfile({ currentUserId, setCurrentUserId }) {
 
       await userAPI.updatePreferences(currentUserId, preferenceData);
       setSuccess('Preferences updated successfully!');
-      setEditMode(false);
+      await loadPreferences();
+      setPrefEditMode(false);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to update preferences');
+      setError(getErrorMessage(err, 'Failed to update preferences'));
     } finally {
       setLoading(false);
     }
@@ -327,58 +368,161 @@ function UserProfile({ currentUserId, setCurrentUserId }) {
               <h5 className="mb-0">Dietary Preferences</h5>
             </div>
             <Card.Body className="card-body-modern">
-              <Form onSubmit={handleUpdatePreferences}>
-                <h6 style={{fontFamily: 'Poppins', fontWeight: 600, marginBottom: '1rem'}}>Dietary Restrictions</h6>
-                <div className="preferences-grid mb-4">
-                  <Form.Check type="checkbox" label="🥬 Vegetarian" name="vegetarian" className="preference-check" />
-                  <Form.Check type="checkbox" label="🌱 Vegan" name="vegan" className="preference-check" />
-                  <Form.Check type="checkbox" label="🌾 Gluten Free" name="gluten_free" className="preference-check" />
-                  <Form.Check type="checkbox" label="🥛 Dairy Free" name="dairy_free" className="preference-check" />
-                  <Form.Check type="checkbox" label="🥜 Nut Free" name="nut_free" className="preference-check" />
-                  <Form.Check type="checkbox" label="☪️ Halal" name="halal" className="preference-check" />
-                  <Form.Check type="checkbox" label="✡️ Kosher" name="kosher" className="preference-check" />
+              {!prefEditMode ? (
+                <div>
+                  <h6 style={{fontFamily: 'Poppins', fontWeight: 600, marginBottom: '1rem'}}>Your Saved Preferences</h6>
+                  {preferences ? (
+                    <div className="profile-info">
+                      <div className="info-item">
+                        <span className="info-label">Dietary Restrictions</span>
+                        <span className="info-value">
+                          {[
+                            preferences.vegetarian && 'Vegetarian',
+                            preferences.vegan && 'Vegan',
+                            preferences.gluten_free && 'Gluten Free',
+                            preferences.dairy_free && 'Dairy Free',
+                            preferences.nut_free && 'Nut Free',
+                            preferences.halal && 'Halal',
+                            preferences.kosher && 'Kosher',
+                          ].filter(Boolean).join(', ') || 'None set'}
+                        </span>
+                      </div>
+                      {preferences.preferred_cuisine && (
+                        <div className="info-item">
+                          <span className="info-label">Preferred Cuisine</span>
+                          <span className="info-value">{preferences.preferred_cuisine}</span>
+                        </div>
+                      )}
+                      {preferences.favorite_ingredients && (
+                        <div className="info-item">
+                          <span className="info-label">Favorite Ingredients</span>
+                          <span className="info-value">{preferences.favorite_ingredients}</span>
+                        </div>
+                      )}
+                      {preferences.disliked_ingredients && (
+                        <div className="info-item">
+                          <span className="info-label">Disliked Ingredients</span>
+                          <span className="info-value">{preferences.disliked_ingredients}</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-muted mb-3">No dietary preferences set yet. Click the button below to add them.</p>
+                  )}
+                  <Button
+                    className="btn-modern btn-secondary-modern w-100 mt-3"
+                    onClick={() => setPrefEditMode(true)}
+                  >
+                    ✏️ Edit Preferences
+                  </Button>
                 </div>
+              ) : (
+                <Form onSubmit={handleUpdatePreferences}>
+                  <h6 style={{fontFamily: 'Poppins', fontWeight: 600, marginBottom: '1rem'}}>Dietary Restrictions</h6>
+                  <div className="preferences-grid mb-4">
+                    <Form.Check
+                      type="checkbox"
+                      label="🥬 Vegetarian"
+                      name="vegetarian"
+                      className="preference-check"
+                      defaultChecked={preferences?.vegetarian}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="🌱 Vegan"
+                      name="vegan"
+                      className="preference-check"
+                      defaultChecked={preferences?.vegan}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="🌾 Gluten Free"
+                      name="gluten_free"
+                      className="preference-check"
+                      defaultChecked={preferences?.gluten_free}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="🥛 Dairy Free"
+                      name="dairy_free"
+                      className="preference-check"
+                      defaultChecked={preferences?.dairy_free}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="🥜 Nut Free"
+                      name="nut_free"
+                      className="preference-check"
+                      defaultChecked={preferences?.nut_free}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="☪️ Halal"
+                      name="halal"
+                      className="preference-check"
+                      defaultChecked={preferences?.halal}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="✡️ Kosher"
+                      name="kosher"
+                      className="preference-check"
+                      defaultChecked={preferences?.kosher}
+                    />
+                  </div>
 
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Preferred Cuisine</Form.Label>
-                  <Form.Control 
-                    type="text" 
-                    name="preferred_cuisine" 
-                    placeholder="e.g., Italian, Asian, Mediterranean" 
-                    className="form-control-modern"
-                  />
-                </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="form-label-modern">Preferred Cuisine</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="preferred_cuisine"
+                      placeholder="e.g., Italian, Asian, Mediterranean"
+                      className="form-control-modern"
+                      defaultValue={preferences?.preferred_cuisine || ''}
+                    />
+                  </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Favorite Ingredients</Form.Label>
-                  <Form.Control 
-                    type="text" 
-                    name="favorite_ingredients" 
-                    placeholder="e.g., chicken, rice, vegetables" 
-                    className="form-control-modern"
-                  />
-                  <Form.Text className="text-muted">Separate with commas</Form.Text>
-                </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="form-label-modern">Favorite Ingredients</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="favorite_ingredients"
+                      placeholder="e.g., chicken, rice, vegetables"
+                      className="form-control-modern"
+                      defaultValue={preferences?.favorite_ingredients || ''}
+                    />
+                    <Form.Text className="text-muted">Separate with commas</Form.Text>
+                  </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Disliked Ingredients</Form.Label>
-                  <Form.Control 
-                    type="text" 
-                    name="disliked_ingredients" 
-                    placeholder="e.g., mushrooms, olives" 
-                    className="form-control-modern"
-                  />
-                  <Form.Text className="text-muted">Separate with commas</Form.Text>
-                </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="form-label-modern">Disliked Ingredients</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="disliked_ingredients"
+                      placeholder="e.g., mushrooms, olives"
+                      className="form-control-modern"
+                      defaultValue={preferences?.disliked_ingredients || ''}
+                    />
+                    <Form.Text className="text-muted">Separate with commas</Form.Text>
+                  </Form.Group>
 
-                <Button 
-                  className="btn-modern btn-secondary-modern w-100"
-                  type="submit" 
-                  disabled={loading}
-                >
-                  {loading ? 'Saving...' : '💾 Save Preferences'}
-                </Button>
-              </Form>
+                  <Button
+                    className="btn-modern btn-secondary-modern w-100 mb-2"
+                    type="submit"
+                    disabled={loading}
+                  >
+                    {loading ? 'Saving...' : '💾 Save Preferences'}
+                  </Button>
+                  <Button
+                    className="btn-modern btn-outline-modern w-100"
+                    type="button"
+                    onClick={() => setPrefEditMode(false)}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
+                </Form>
+              )}
             </Card.Body>
           </Card>
         </Col>
