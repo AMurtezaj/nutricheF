@@ -12,6 +12,7 @@ import Recommendations from './components/Recommendations';
 import NutritionAnalysis from './components/NutritionAnalysis';
 import FindMeals from './components/FindMeals';
 import RecipeDetail from './components/RecipeDetail';
+import SavedMeals from './components/SavedMeals';
 import './App.css';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
                 <Nav className="me-auto">
                   <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
                   <Nav.Link as={Link} to="/meals">Find Meals</Nav.Link>
+                  <Nav.Link as={Link} to="/saved">Saved Meals</Nav.Link>
                   <Nav.Link as={Link} to="/recommendations">Recommendations</Nav.Link>
                   <Nav.Link as={Link} to="/nutrition">Nutrition</Nav.Link>
                 </Nav>
@@ -88,6 +90,7 @@ function App() {
             element={<UserProfile currentUserId={currentUserId} setCurrentUserId={handleSetUserId} />} 
           />
           <Route path="/meals" element={<FindMeals currentUserId={currentUserId} />} />
+          <Route path="/saved" element={<SavedMeals currentUserId={currentUserId} />} />
           <Route path="/recipe/:mealId" element={<RecipeDetail currentUserId={currentUserId} />} />
           <Route path="/recommendations" element={<Recommendations currentUserId={currentUserId} />} />
           <Route path="/nutrition" element={<NutritionAnalysis currentUserId={currentUserId} />} />

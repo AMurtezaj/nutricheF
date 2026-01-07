@@ -1,19 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Badge, Alert, ListGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Alert, ListGroup, Modal, Form } from 'react-bootstrap';
 import { mealAPI } from '../services/api';
+import axios from 'axios';
 import './RecipeDetail.css';
+
+const API_BASE_URL = 'http://localhost:8000/api';
 
 function RecipeDetail({ currentUserId }) {
   const { mealId } = useParams();
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isSaved, setIsSaved] = useState(false);
+  const [userRating, setUserRating] = useState(null);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingValue, setRatingValue] = useState(5);
+  const [review, setReview] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     loadMeal();
-  }, [mealId]);
+    if (currentUserId) {
+      checkIfSaved();
+      loadUserRating();
+    }
+  }, [mealId, currentUserId]);
 
   const loadMeal = async () => {
     try {
@@ -23,6 +35,84 @@ function RecipeDetail({ currentUserId }) {
       setError('Failed to load recipe');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkIfSaved = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/saved-meals/users/${currentUserId}/meals/${mealId}/is-saved`
+      );
+      setIsSaved(response.data.is_saved);
+    } catch (err) {
+      console.error('Failed to check if saved:', err);
+    }
+  };
+
+  const loadUserRating = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/ratings/users/${currentUserId}/meals/${mealId}`
+      );
+      if (response.data) {
+        setUserRating(response.data);
+        setRatingValue(response.data.rating);
+        setReview(response.data.review || '');
+      }
+    } catch (err) {
+      // No rating yet, that's okay
+      console.log('No existing rating');
+    }
+  };
+
+  const handleSaveToggle = async () => {
+    if (!currentUserId) {
+      alert('Please log in to save recipes');
+      return;
+    }
+
+    try {
+      if (isSaved) {
+        // Unsave
+        await axios.delete(`${API_BASE_URL}/saved-meals/users/${currentUserId}/meals/${mealId}`);
+        setIsSaved(false);
+        alert('Recipe removed from saved meals');
+      } else {
+        // Save
+        await axios.post(
+          `${API_BASE_URL}/saved-meals/users/${currentUserId}/meals/${mealId}`,
+          { note: '' }
+        );
+        setIsSaved(true);
+        alert('Recipe saved successfully! View it in your Saved Meals.');
+      }
+    } catch (err) {
+      alert('Failed to save/unsave recipe');
+      console.error(err);
+    }
+  };
+
+  const handleRatingSubmit = async () => {
+    if (!currentUserId) {
+      alert('Please log in to rate recipes');
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${API_BASE_URL}/ratings/users/${currentUserId}/meals/${mealId}`,
+        {
+          rating: ratingValue,
+          review: review
+        }
+      );
+      setShowRatingModal(false);
+      alert('Rating submitted successfully!');
+      loadMeal(); // Reload to get updated rating stats
+      loadUserRating();
+    } catch (err) {
+      alert('Failed to submit rating');
+      console.error(err);
     }
   };
 
@@ -209,25 +299,105 @@ function RecipeDetail({ currentUserId }) {
                 ))}
               </div>
 
+              {/* Rating Display */}
+              {meal.average_rating > 0 && (
+                <div className="mb-3 pb-3" style={{borderBottom: '1px solid var(--border)'}}>
+                  <div className="text-center">
+                    <div style={{fontSize: '2rem', color: 'var(--accent)'}}>
+                      {'⭐'.repeat(Math.round(meal.average_rating))}
+                    </div>
+                    <div style={{fontSize: '1.25rem', fontWeight: 600}}>
+                      {meal.average_rating.toFixed(1)} / 5.0
+                    </div>
+                    <div className="text-muted small">
+                      {meal.total_ratings} {meal.total_ratings === 1 ? 'rating' : 'ratings'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* User's Rating */}
+              {userRating && (
+                <Alert variant="info" className="small mb-3">
+                  <strong>Your rating:</strong> {userRating.rating}/5
+                  {userRating.review && <div className="mt-1">{userRating.review}</div>}
+                </Alert>
+              )}
+
               {/* Actions */}
               <div className="mt-4 pt-3" style={{borderTop: '1px solid var(--border)'}}>
                 <Button 
-                  className="btn-modern btn-primary-modern w-100 mb-2"
-                  onClick={() => navigate(`/meals`)}
+                  className={`btn-modern w-100 mb-2 ${isSaved ? 'btn-outline-modern' : 'btn-primary-modern'}`}
+                  onClick={handleSaveToggle}
                 >
-                  💾 Save Recipe
+                  {isSaved ? '❤️ Saved' : '💾 Save Recipe'}
                 </Button>
                 <Button 
                   className="btn-modern btn-outline-modern w-100"
-                  onClick={() => alert('Rating feature coming soon!')}
+                  onClick={() => setShowRatingModal(true)}
                 >
-                  ⭐ Rate Recipe
+                  ⭐ {userRating ? 'Update Rating' : 'Rate Recipe'}
                 </Button>
               </div>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+
+      {/* Rating Modal */}
+      <Modal show={showRatingModal} onHide={() => setShowRatingModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Rate this Recipe</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Rating (1-5 stars)</Form.Label>
+              <div className="text-center my-3">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    onClick={() => setRatingValue(star)}
+                    style={{
+                      fontSize: '2rem',
+                      cursor: 'pointer',
+                      color: star <= ratingValue ? 'var(--accent)' : '#ccc'
+                    }}
+                  >
+                    ⭐
+                  </span>
+                ))}
+              </div>
+              <div className="text-center">
+                <strong>{ratingValue} / 5</strong>
+              </div>
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Review (optional)</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                placeholder="Share your thoughts about this recipe..."
+                maxLength={1000}
+              />
+              <Form.Text className="text-muted">
+                {review.length}/1000 characters
+              </Form.Text>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRatingModal(false)}>
+            Cancel
+          </Button>
+          <Button className="btn-primary-modern" onClick={handleRatingSubmit}>
+            Submit Rating
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }

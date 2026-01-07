@@ -5,6 +5,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from app.repositories.database import get_db
 from app.services.recommendation_service import RecommendationService
+from app.services.ml_recommendation_service import MLRecommendationService
 from app.repositories.user_repository import UserRepository
 
 router = APIRouter(prefix="/api/recommendations", tags=["recommendations"])
@@ -31,18 +32,29 @@ def get_recommendations(
     user_id: int,
     category: Optional[str] = None,
     limit: int = 10,
+    use_ml: bool = True,
     db: Session = Depends(get_db)
 ):
-    """Get personalized meal recommendations for a user."""
+    """
+    Get personalized meal recommendations for a user.
+    Uses ML-based collaborative filtering combined with content-based filtering.
+    """
     # Check if user exists
     user = UserRepository.get_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     try:
-        recommendations = RecommendationService.get_recommendations(
-            db, user_id, category, limit
-        )
+        # Use ML-enhanced service by default
+        if use_ml:
+            recommendations = MLRecommendationService.get_recommendations(
+                db, user_id, category, limit, use_ml=True
+            )
+        else:
+            # Fallback to content-based only
+            recommendations = RecommendationService.get_recommendations(
+                db, user_id, category, limit
+            )
         
         # Format response
         formatted_recommendations = []
@@ -64,6 +76,36 @@ def get_recommendations(
         return formatted_recommendations
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/popular", response_model=List[MealRecommendation])
+def get_popular_meals(
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    """Get popular meals based on ML model popularity scores."""
+    try:
+        recommendations = MLRecommendationService.get_popular_meals(db, limit)
+        
+        formatted_recommendations = []
+        for rec in recommendations:
+            meal = rec["meal"]
+            formatted_recommendations.append({
+                "id": meal.id,
+                "name": meal.name,
+                "description": meal.description,
+                "category": meal.category,
+                "calories": meal.calories,
+                "protein": meal.protein,
+                "carbohydrates": meal.carbohydrates,
+                "fat": meal.fat,
+                "score": rec["score"],
+                "reason": rec["reason"],
+            })
+        
+        return formatted_recommendations
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 
