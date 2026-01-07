@@ -38,6 +38,8 @@ class User(Base):
     # Relationships
     preferences = relationship("Preference", back_populates="user", cascade="all, delete-orphan")
     user_meals = relationship("UserMeal", back_populates="user", cascade="all, delete-orphan")
+    saved_meals = relationship("SavedMeal", back_populates="user", cascade="all, delete-orphan")
+    meal_ratings = relationship("MealRating", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, username={self.username})>"

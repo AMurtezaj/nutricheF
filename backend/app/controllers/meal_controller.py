@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.repositories.database import get_db
 from app.services.meal_service import MealService
 from app.repositories.meal_repository import MealRepository
+from app.repositories.meal_rating_repository import MealRatingRepository
 
 router = APIRouter(prefix="/api/meals", tags=["meals"])
 
@@ -53,6 +54,8 @@ class MealResponse(BaseModel):
     is_nut_free: bool = False
     is_halal: bool = False
     is_kosher: bool = False
+    average_rating: Optional[float] = None
+    total_ratings: Optional[int] = None
     
     class Config:
         from_attributes = True
@@ -90,11 +93,40 @@ def get_all_meals(
 
 @router.get("/{meal_id}", response_model=MealResponse)
 def get_meal(meal_id: int, db: Session = Depends(get_db)):
-    """Get meal by ID."""
+    """Get meal by ID with rating statistics."""
     meal = MealService.get_meal_by_id(db, meal_id)
     if not meal:
         raise HTTPException(status_code=404, detail="Meal not found")
-    return meal
+    
+    # Get rating stats
+    rating_stats = MealRatingRepository.get_meal_rating_stats(db, meal_id)
+    
+    # Convert to dict and add rating stats
+    meal_dict = {
+        "id": meal.id,
+        "name": meal.name,
+        "description": meal.description,
+        "category": meal.category,
+        "calories": meal.calories,
+        "protein": meal.protein,
+        "carbohydrates": meal.carbohydrates,
+        "fat": meal.fat,
+        "fiber": meal.fiber,
+        "sugar": meal.sugar,
+        "sodium": meal.sodium,
+        "serving_size": meal.serving_size,
+        "is_vegetarian": meal.is_vegetarian,
+        "is_vegan": meal.is_vegan,
+        "is_gluten_free": meal.is_gluten_free,
+        "is_dairy_free": meal.is_dairy_free,
+        "is_nut_free": meal.is_nut_free,
+        "is_halal": meal.is_halal,
+        "is_kosher": meal.is_kosher,
+        "average_rating": rating_stats['average_rating'],
+        "total_ratings": rating_stats['total_ratings']
+    }
+    
+    return meal_dict
 
 
 @router.get("/search/{query}", response_model=List[MealResponse])

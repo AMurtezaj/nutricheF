@@ -46,6 +46,12 @@ Thumbs.db
 # Logs
 *.log
 
+# Large data files (too big for GitHub)
+data/*.csv
+data/*.zip
+models/*.pkl
+models/*.json
+
 
 
 
