@@ -31,3 +31,7 @@ class MealRating(Base):
     def __repr__(self):
         return f"<MealRating(user_id={self.user_id}, meal_id={self.meal_id}, rating={self.rating})>"
 
+
+
+
+
