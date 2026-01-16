@@ -1,18 +1,361 @@
 .landing-page {
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Hero Section Enhancements */
+.hero-section {
+  position: relative;
+  padding: 8rem 0 6rem;
+  overflow: hidden;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #FF6B35 0%, #4ECDC4 100%);
+  opacity: 0.95;
+}
+
+.hero-background::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: float 20s infinite linear;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #FFE66D 0%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.hero-subtitle {
+  font-size: 1.3rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.95;
+  line-height: 1.6;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-cta {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.feature-icon {
-  display: inline-block;
+.btn-hero-primary {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+}
+
+.btn-hero-primary .btn-icon {
   transition: transform 0.3s ease;
 }
 
-.card-modern:hover .feature-icon {
-  transform: scale(1.1) rotate(5deg);
+.btn-hero-primary:hover .btn-icon {
+  transform: translateX(5px);
+}
+
+.btn-hero-outline {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+.btn-hero-outline:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: white;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Features Section */
+.features-section {
+  background: #F8F9FA;
+  padding: 6rem 0;
+}
+
+.section-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+  color: #2C3E50;
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #7F8C8D;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  transition: all 0.3s ease;
+  border: none;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon-wrapper {
+  margin-bottom: 1.5rem;
+  display: inline-block;
+}
+
+.feature-icon {
+  font-size: 4rem;
+  display: inline-block;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.15) rotate(5deg);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+.feature-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #2C3E50;
+}
+
+.feature-description {
+  color: #7F8C8D;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* Social Proof Section */
+.social-proof {
+  background: linear-gradient(135deg, #FF6B35 0%, #4ECDC4 100%);
+  color: white;
+  padding: 6rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-proof::before {
+  content: '';
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  top: -100%;
+  left: -100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 80px 80px;
+  animation: float 30s infinite linear;
+}
+
+.social-proof-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.rating-stars .star {
+  font-size: 2rem;
+}
+
+.rating-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.testimonial-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.testimonial-text {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.testimonial-author {
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+/* Footer */
+footer {
+  background: #2C3E50;
+  color: white;
+  padding: 3rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .hero-stats {
+    gap: 2rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-outline {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 
