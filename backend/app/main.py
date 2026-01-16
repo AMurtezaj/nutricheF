@@ -9,6 +9,8 @@ from app.controllers import (
     recommendation_router,
     ai_recipe_router
 )
+from app.controllers.saved_meal_controller import router as saved_meal_router
+from app.controllers.meal_rating_controller import router as rating_router
 from app.repositories.database import init_db
 
 # Create FastAPI app
@@ -34,7 +36,8 @@ app.include_router(user_router)
 app.include_router(meal_router)
 app.include_router(nutrition_router)
 app.include_router(recommendation_router)
-app.include_router(ai_recipe_router)
+app.include_router(saved_meal_router)
+app.include_router(rating_router)
 
 
 @app.on_event("startup")

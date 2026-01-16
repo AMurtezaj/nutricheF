@@ -45,8 +45,12 @@ class Meal(Base):
     
     # Relationships
     user_meals = relationship("UserMeal", back_populates="meal")
+    saved_by_users = relationship("SavedMeal", back_populates="meal")
+    ratings = relationship("MealRating", back_populates="meal")
     
     def __repr__(self):
         return f"<Meal(id={self.id}, name={self.name}, calories={self.calories})>"
+
+
 
 

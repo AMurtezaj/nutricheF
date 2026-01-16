@@ -1,0 +1,32 @@
+.saved-meals-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.saved-meal-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.saved-meal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.saved-note {
+  font-style: italic;
+  border-left: 3px solid var(--primary);
+  padding-left: 0.75rem !important;
+}
+
+.nutrition-quick-info {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 0;
+}
+
+
+
+
+
