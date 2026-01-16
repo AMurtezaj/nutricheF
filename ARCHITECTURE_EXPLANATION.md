@@ -148,7 +148,7 @@ class UserRepository:
 Like a **librarian** who knows exactly where every book is. You ask "Get me book #123" and they retrieve it. They don't decide if you should read it or what it means - they just get it.
 
 ---
-
+---
 ### 3️⃣ SERVICE - "The Worker"
 
 #### What it is:

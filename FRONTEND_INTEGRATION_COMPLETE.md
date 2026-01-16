@@ -25,6 +25,7 @@
   - "View Recipe" and "Remove" buttons
 
 ### 2. ✅ Recipe Rating Functionality
+### 2. ✅ Recipe Rating Functionality
 
 **What happens when you click "Rate Recipe":**
 1. A modal popup appears with:
