@@ -6,7 +6,8 @@ from app.controllers import (
     user_router,
     meal_router,
     nutrition_router,
-    recommendation_router
+    recommendation_router,
+    ai_recipe_router
 )
 from app.controllers.saved_meal_controller import router as saved_meal_router
 from app.controllers.meal_rating_controller import router as rating_router
