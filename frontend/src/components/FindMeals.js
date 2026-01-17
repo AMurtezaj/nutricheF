@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, InputGroup, Badge, Alert, Modal, FormControl } from 'react-bootstrap';
 import { aiRecipeAPI } from '../services/api';
 import CreateRecipeModal from './CreateRecipeModal';
+import LogMealModal from './LogMealModal';
 import './FindMeals.css';
 
 function FindMeals({ currentUserId }) {
@@ -17,6 +18,8 @@ function FindMeals({ currentUserId }) {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingValue, setRatingValue] = useState(0);
   const [ratingComment, setRatingComment] = useState('');
+  const [showLogMealModal, setShowLogMealModal] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState(null);
   const navigate = useNavigate();
 
   // Common ingredients for selection
@@ -326,23 +329,35 @@ function FindMeals({ currentUserId }) {
                           </div>
                         </div>
                         
-                        <div className="d-flex gap-2 mt-2">
+                        <div className="d-grid gap-2 mt-2">
                           <Button
-                            className="btn-modern btn-primary-modern flex-grow-1"
+                            className="btn-modern btn-primary-modern"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleMealClick(meal.id);
+                              setSelectedMeal(meal);
+                              setShowLogMealModal(true);
                             }}
                           >
-                            View Recipe
+                            📊 Log Meal
                           </Button>
-                          <Button
-                            variant="outline-warning"
-                            onClick={(e) => handleRateClick(e, meal)}
-                            title="Rate this recipe"
-                          >
-                            ⭐
-                          </Button>
+                          <div className="d-flex gap-2">
+                            <Button
+                              className="btn-modern btn-outline-modern flex-grow-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMealClick(meal.id);
+                              }}
+                            >
+                              View Recipe
+                            </Button>
+                            <Button
+                              variant="outline-warning"
+                              onClick={(e) => handleRateClick(e, meal)}
+                              title="Rate this recipe"
+                            >
+                              ⭐
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -438,6 +453,24 @@ function FindMeals({ currentUserId }) {
         currentUserId={currentUserId}
         initialIngredients={selectedIngredients}
       />
+
+      {/* Log Meal Modal */}
+      {selectedMeal && (
+        <LogMealModal
+          show={showLogMealModal}
+          onHide={() => {
+            setShowLogMealModal(false);
+            setSelectedMeal(null);
+          }}
+          meal={selectedMeal}
+          userId={currentUserId}
+          onSuccess={() => {
+            alert('✅ Meal logged successfully! Check your Nutrition page to see your daily progress.');
+            setShowLogMealModal(false);
+            setSelectedMeal(null);
+          }}
+        />
+      )}
     </Container>
   );
 }

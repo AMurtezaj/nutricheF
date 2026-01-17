@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import LogMealModal from './LogMealModal';
 import './SavedMeals.css';
 
 const API_BASE_URL = 'http://localhost:8000/api';
@@ -10,6 +11,8 @@ function SavedMeals({ currentUserId }) {
   const [savedMeals, setSavedMeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showLogMealModal, setShowLogMealModal] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -162,12 +165,21 @@ function SavedMeals({ currentUserId }) {
                     <div className="mt-auto">
                       <Button
                         className="btn-modern btn-primary-modern w-100 mb-2"
+                        onClick={() => {
+                          setSelectedMeal(savedMeal);
+                          setShowLogMealModal(true);
+                        }}
+                      >
+                        📊 Log This Meal
+                      </Button>
+                      <Button
+                        className="btn-modern btn-outline-modern w-100 mb-2"
                         onClick={() => navigate(`/recipe/${savedMeal.meal_id}`)}
                       >
                         View Recipe
                       </Button>
                       <Button
-                        className="btn-modern btn-outline-modern w-100"
+                        className="w-100"
                         variant="outline-danger"
                         onClick={() => handleUnsave(savedMeal.meal_id)}
                       >
@@ -180,6 +192,35 @@ function SavedMeals({ currentUserId }) {
             ))}
           </Row>
         </>
+      )}
+
+      {/* Log Meal Modal */}
+      {selectedMeal && (
+        <LogMealModal
+          show={showLogMealModal}
+          onHide={() => {
+            setShowLogMealModal(false);
+            setSelectedMeal(null);
+          }}
+          meal={{
+            id: selectedMeal.meal_id,
+            name: selectedMeal.meal_name,
+            description: selectedMeal.meal_description,
+            category: selectedMeal.category,
+            calories: selectedMeal.calories,
+            protein: selectedMeal.protein,
+            carbohydrates: selectedMeal.carbohydrates,
+            fat: selectedMeal.fat,
+            fiber: selectedMeal.fiber,
+            sugar: selectedMeal.sugar
+          }}
+          userId={currentUserId}
+          onSuccess={() => {
+            alert('✅ Meal logged successfully! Check your Nutrition page to see your daily progress.');
+            setShowLogMealModal(false);
+            setSelectedMeal(null);
+          }}
+        />
       )}
     </Container>
   );
