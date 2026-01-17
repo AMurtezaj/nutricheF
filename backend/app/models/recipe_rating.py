@@ -29,7 +29,7 @@ class RecipeRating(Base):
     
     # Relationships
     user = relationship("User", backref="recipe_ratings")
-    meal = relationship("Meal", backref="ratings")
+    meal = relationship("Meal", backref="recipe_ratings")
     
     def __repr__(self):
         return f"<RecipeRating(user_id={self.user_id}, meal_id={self.meal_id}, rating={self.rating})>"
