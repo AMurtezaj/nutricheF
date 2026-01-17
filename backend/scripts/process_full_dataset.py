@@ -178,8 +178,10 @@ class FullDatasetProcessor:
                     try:
                         ingredients = ast.literal_eval(ingredients_str) if isinstance(ingredients_str, str) else ingredients_str
                         ingredients_lower = ' '.join([str(ing).lower() for ing in ingredients])
+                        ingredients_str_for_db = ', '.join([str(ing) for ing in ingredients])  # Comma-separated for database
                     except:
                         ingredients_lower = ''
+                        ingredients_str_for_db = ''
                     
                     # Infer dietary restrictions
                     has_meat = any(word in ingredients_lower for word in [
@@ -223,6 +225,7 @@ class FullDatasetProcessor:
                         'name': row.get('name', 'Unknown Recipe'),
                         'description': description,
                         'category': category,
+                        'ingredients': ingredients_str_for_db,  # Add ingredients field
                         'calories': float(calories),
                         'protein': float(protein),
                         'carbohydrates': float(carbs),
