@@ -13,6 +13,7 @@ const api = axios.create({
 export const userAPI = {
   create: (userData) => api.post('/api/users', userData),
   get: (userId) => api.get(`/api/users/${userId}`),
+  getAll: (skip = 0, limit = 100) => api.get('/api/users', { params: { skip, limit } }),
   update: (userId, userData) => api.put(`/api/users/${userId}`, userData),
   updatePreferences: (userId, preferences) => 
     api.put(`/api/users/${userId}/preferences`, preferences),

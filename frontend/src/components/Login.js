@@ -11,19 +11,27 @@ function Login({ setCurrentUserId }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // For demo purposes - in real app, you'd have proper auth
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // Since we don't have a login endpoint, we'll search for user by email
-      // In a real app, you'd authenticate with email/password
-      alert('Demo: For now, please create an account or use the home page to create a user');
-      navigate('/');
+      // Get all users and find user by email
+      const response = await userAPI.getAll();
+      const user = response.data.find(u => u.email === email);
+      
+      if (!user) {
+        setError('Invalid email or password. Please check your credentials.');
+        return;
+      }
+
+      // For now, we just verify the email exists since password field is not in the User model yet
+      // In a future update, we'll verify the password when it's added to the model
+      setCurrentUserId(user.id);
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed');
+      setError(err.response?.data?.detail || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

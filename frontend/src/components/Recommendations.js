@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Alert, Badge, Form, Spinner } from 'react-bootstrap';
 import { recommendationAPI } from '../services/api';
+import LogMealModal from './LogMealModal';
 import './Recommendations.css';
 
 function Recommendations({ currentUserId }) {
@@ -9,6 +10,8 @@ function Recommendations({ currentUserId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [category, setCategory] = useState('');
+  const [showLogMealModal, setShowLogMealModal] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -158,15 +161,27 @@ function Recommendations({ currentUserId }) {
                         </small>
                       </div>
 
-                      <Button
-                        className="btn-modern btn-primary-modern w-100"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMealClick(rec.id);
-                        }}
-                      >
-                        View Recipe →
-                      </Button>
+                      <div className="d-grid gap-2">
+                        <Button
+                          className="btn-modern btn-primary-modern"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedMeal(rec);
+                            setShowLogMealModal(true);
+                          }}
+                        >
+                          📊 Log Meal
+                        </Button>
+                        <Button
+                          className="btn-modern btn-outline-modern"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMealClick(rec.id);
+                          }}
+                        >
+                          View Recipe →
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </Col>
@@ -185,6 +200,24 @@ function Recommendations({ currentUserId }) {
             </div>
           )}
         </>
+      )}
+
+      {/* Log Meal Modal */}
+      {selectedMeal && (
+        <LogMealModal
+          show={showLogMealModal}
+          onHide={() => {
+            setShowLogMealModal(false);
+            setSelectedMeal(null);
+          }}
+          meal={selectedMeal}
+          userId={currentUserId}
+          onSuccess={() => {
+            alert('✅ Meal logged successfully! Check your Nutrition page to see your daily progress.');
+            setShowLogMealModal(false);
+            setSelectedMeal(null);
+          }}
+        />
       )}
     </Container>
   );
