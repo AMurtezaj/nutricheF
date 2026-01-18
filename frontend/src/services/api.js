@@ -13,6 +13,7 @@ const api = axios.create({
 export const userAPI = {
   create: (userData) => api.post('/api/users', userData),
   get: (userId) => api.get(`/api/users/${userId}`),
+  getAll: (skip = 0, limit = 100) => api.get('/api/users', { params: { skip, limit } }),
   update: (userId, userData) => api.put(`/api/users/${userId}`, userData),
   updatePreferences: (userId, preferences) => 
     api.put(`/api/users/${userId}/preferences`, preferences),
@@ -55,6 +56,31 @@ export const recommendationAPI = {
     if (category) params.category = category;
     return api.get(`/api/recommendations/users/${userId}`, { params });
   },
+};
+
+// AI Recipe API
+export const aiRecipeAPI = {
+  searchByIngredients: (ingredients, limit = 10, minMatch = 1) =>
+    api.post('/api/ai-recipes/search', {
+      ingredients,
+      limit,
+      min_ingredients_match: minMatch,
+    }),
+  createRecipe: (recipeData) =>
+    api.post('/api/ai-recipes/create', recipeData),
+  rateRecipe: (mealId, userId, rating, comment = null) =>
+    api.post(`/api/ai-recipes/meals/${mealId}/rate?user_id=${userId}`, {
+      rating,
+      comment,
+    }),
+  getRecipeRatings: (mealId) =>
+    api.get(`/api/ai-recipes/meals/${mealId}/ratings`),
+  getUserRating: (mealId, userId) =>
+    api.get(`/api/ai-recipes/meals/${mealId}/user/${userId}/rating`),
+  trainModel: () =>
+    api.post('/api/ai-recipes/train'),
+  getModelStatus: () =>
+    api.get('/api/ai-recipes/model/status'),
 };
 
 export default api;

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Badge, Alert, ListGroup, Modal, Form } from 'react-bootstrap';
 import { mealAPI } from '../services/api';
 import axios from 'axios';
+import LogMealModal from './LogMealModal';
 import './RecipeDetail.css';
 
 const API_BASE_URL = 'http://localhost:8000/api';
@@ -17,6 +18,7 @@ function RecipeDetail({ currentUserId }) {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingValue, setRatingValue] = useState(5);
   const [review, setReview] = useState('');
+  const [showLogMealModal, setShowLogMealModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -327,7 +329,14 @@ function RecipeDetail({ currentUserId }) {
               {/* Actions */}
               <div className="mt-4 pt-3" style={{borderTop: '1px solid var(--border)'}}>
                 <Button 
-                  className={`btn-modern w-100 mb-2 ${isSaved ? 'btn-outline-modern' : 'btn-primary-modern'}`}
+                  className="btn-modern btn-primary-modern w-100 mb-2"
+                  onClick={() => setShowLogMealModal(true)}
+                  style={{fontWeight: 600}}
+                >
+                  📊 Log This Meal
+                </Button>
+                <Button 
+                  className={`btn-modern w-100 mb-2 ${isSaved ? 'btn-outline-modern' : 'btn-secondary-modern'}`}
                   onClick={handleSaveToggle}
                 >
                   {isSaved ? '❤️ Saved' : '💾 Save Recipe'}
@@ -398,6 +407,17 @@ function RecipeDetail({ currentUserId }) {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Log Meal Modal */}
+      <LogMealModal
+        show={showLogMealModal}
+        onHide={() => setShowLogMealModal(false)}
+        meal={meal}
+        userId={currentUserId}
+        onSuccess={() => {
+          alert('✅ Meal logged successfully! Check your Nutrition page to see your daily progress.');
+        }}
+      />
     </Container>
   );
 }
