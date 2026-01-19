@@ -1,11 +1,30 @@
-"""User repository for database operations."""
+"""User repository for database operations.
+
+This module provides the UserRepository class which handles all database
+operations for User entities, implementing the 3-level inheritance hierarchy:
+IRepository (Abstract) -> BaseRepository (Concrete Base) -> UserRepository
+"""
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.user import User
+from app.core.base_repository import BaseRepository
 
 
-class UserRepository:
-    """Repository for User model database operations."""
+class UserRepository(BaseRepository[User]):
+    """
+    Repository for User model database operations.
+    
+    Inheritance Hierarchy (3 levels):
+    - Level 1: IRepository (Abstract interface)
+    - Level 2: BaseRepository (Concrete base with common CRUD)
+    - Level 3: UserRepository (Specific user operations)
+    
+    This demonstrates polymorphism through method overriding and
+    provides user-specific query methods beyond basic CRUD.
+    """
+    
+    # Set the model class for BaseRepository
+    model = User
     
     @staticmethod
     def get_by_id(db: Session, user_id: int) -> Optional[User]:
@@ -56,7 +75,3 @@ class UserRepository:
             db.commit()
             return True
         return False
-
-
-
-
