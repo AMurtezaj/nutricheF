@@ -7,14 +7,29 @@ for type safety and validation.
 from enum import Enum
 
 
-class Gender(str, Enum):
+
+class BaseEnum(str, Enum):
+    """Base enumeration class with helper methods."""
+    
+    @classmethod
+    def list(cls):
+        """Return list of all values."""
+        return [e.value for e in cls]
+        
+    @classmethod
+    def dict(cls):
+        """Return dictionary of {name: value}."""
+        return {e.name: e.value for e in cls}
+
+
+class Gender(BaseEnum):
     """Gender enumeration for user profiles."""
     MALE = "male"
     FEMALE = "female"
     OTHER = "other"
 
 
-class ActivityLevel(str, Enum):
+class ActivityLevel(BaseEnum):
     """Activity level enumeration for calculating TDEE."""
     SEDENTARY = "sedentary"
     LIGHTLY_ACTIVE = "lightly_active"
@@ -23,7 +38,7 @@ class ActivityLevel(str, Enum):
     EXTREMELY_ACTIVE = "extremely_active"
 
 
-class Goal(str, Enum):
+class Goal(BaseEnum):
     """User health/fitness goal enumeration."""
     WEIGHT_LOSS = "weight_loss"
     WEIGHT_GAIN = "weight_gain"
@@ -31,7 +46,7 @@ class Goal(str, Enum):
     MUSCLE_GAIN = "muscle_gain"
 
 
-class MealCategory(str, Enum):
+class MealCategory(BaseEnum):
     """Meal category enumeration for classifying meals."""
     BREAKFAST = "breakfast"
     LUNCH = "lunch"
@@ -39,7 +54,7 @@ class MealCategory(str, Enum):
     SNACK = "snack"
 
 
-class MealType(str, Enum):
+class MealType(BaseEnum):
     """Meal type enumeration for logging user meals."""
     BREAKFAST = "breakfast"
     LUNCH = "lunch"
