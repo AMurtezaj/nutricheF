@@ -99,7 +99,7 @@ def get_meal(meal_id: int, db: Session = Depends(get_db)):
     """Get meal by ID with rating statistics."""
     meal = MealService.get_meal_by_id(db, meal_id)
     if not meal:
-        raise HTTPException(status_code=404, detail="Meal not found")
+        raise HTTPException(status_code=404, detail=str(MealNotFoundException(meal_id=meal_id)))
     
     # Get rating stats
     rating_stats = MealRatingRepository.get_meal_rating_stats(db, meal_id)

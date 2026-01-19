@@ -1,4 +1,8 @@
-"""Service for ML-based meal recommendations."""
+"""Service for ML-based meal recommendations.
+
+This module provides the RecommendationService class which handles
+recommendation logic, implementing the IRecommendationEngine interface.
+"""
 from typing import List, Dict, Optional
 from sqlalchemy.orm import Session
 from app.repositories.meal_repository import MealRepository
@@ -6,15 +10,54 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.preference_repository import PreferenceRepository
 from app.repositories.user_meal_repository import UserMealRepository
 from app.services.nutrition_service import NutritionService
+from app.core.interfaces.base_recommendation import IRecommendationEngine
+from app.exceptions import UserNotFoundException
 from datetime import date
 from collections import Counter
 
 
-class RecommendationService:
+class BaseRecommendationService(IRecommendationEngine):
+    """
+    Base recommendation service implementing common recommendation patterns.
+    
+    This is Level 2 of the 3-level inheritance hierarchy:
+    IRecommendationEngine (Abstract) -> BaseRecommendationService -> ConcreteRecommendationService
+    
+    Provides common recommendation functionality that can be overridden.
+    """
+    
+    @staticmethod
+    def get_recommendations(
+        db: Session,
+        user_id: int,
+        category: Optional[str] = None,
+        limit: int = 10
+    ) -> List[Dict]:
+        """Default implementation - should be overridden by subclasses."""
+        raise NotImplementedError("Subclasses must implement get_recommendations")
+    
+    @staticmethod
+    def calculate_score(
+        meal,
+        user,
+        preference,
+        user_meals: List,
+        today_nutrition: Dict
+    ) -> float:
+        """Default implementation - should be overridden by subclasses."""
+        return 0.0
+
+
+class RecommendationService(BaseRecommendationService):
     """
     Service for generating personalized meal recommendations using ML techniques.
     
     Uses collaborative filtering and content-based filtering approaches.
+    
+    Inheritance Hierarchy (3 levels):
+    - Level 1: IRecommendationEngine (Abstract interface)
+    - Level 2: BaseRecommendationService (Concrete base)
+    - Level 3: RecommendationService (Content-based recommendations)
     """
     
     @staticmethod
@@ -35,11 +78,14 @@ class RecommendationService:
         
         Returns:
             List of recommended meals with scores
+            
+        Raises:
+            UserNotFoundException: If user is not found
         """
         # Get user and preferences
         user = UserRepository.get_by_id(db, user_id)
         if not user:
-            raise ValueError(f"User {user_id} not found")
+            raise UserNotFoundException(user_id=user_id)
         
         preference = PreferenceRepository.get_by_user_id(db, user_id)
         
@@ -58,7 +104,7 @@ class RecommendationService:
         # Score each meal
         scored_meals = []
         for meal in all_meals:
-            score = RecommendationService._calculate_meal_score(
+            score = RecommendationService.calculate_score(
                 meal, user, preference, user_meals, today_nutrition
             )
             scored_meals.append((meal, score))
@@ -77,6 +123,27 @@ class RecommendationService:
             })
         
         return recommendations
+    
+    @staticmethod
+    def calculate_score(
+        meal,
+        user,
+        preference,
+        user_meals: List,
+        today_nutrition: Dict
+    ) -> float:
+        """
+        Calculate a recommendation score for a meal.
+        
+        Uses a combination of:
+        - Content-based filtering (nutritional fit, dietary restrictions)
+        - Collaborative filtering (similarity to previously consumed meals)
+        - Nutritional balance (how well it fits remaining daily targets)
+        """
+        # Alias for backward compatibility
+        return RecommendationService._calculate_meal_score(
+            meal, user, preference, user_meals, today_nutrition
+        )
     
     @staticmethod
     def _calculate_meal_score(
@@ -202,4 +269,3 @@ class RecommendationService:
                 reasons.append("Fits your daily calorie goals")
         
         return "; ".join(reasons) if reasons else "Personalized recommendation based on your profile"
-

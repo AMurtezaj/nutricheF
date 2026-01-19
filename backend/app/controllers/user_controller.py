@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr
+from app.exceptions import UserNotFoundException, PreferenceException
 from app.repositories.database import get_db
 from app.services.user_service import UserService
 from app.repositories.user_repository import UserRepository
@@ -113,7 +114,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     """Get user by ID."""
     user = UserService.get_user(db, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=str(UserNotFoundException(user_id=user_id)))
     return user
 
 

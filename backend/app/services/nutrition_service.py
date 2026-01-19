@@ -1,4 +1,8 @@
-"""Service for nutrition calculations and analysis."""
+"""Service for nutrition calculations and analysis.
+
+This module provides the NutritionService class which handles nutrition
+calculations, implementing the INutritionCalculator interface.
+"""
 from typing import Dict, List
 from datetime import date
 from sqlalchemy.orm import Session
@@ -6,10 +10,48 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.user_meal_repository import UserMealRepository
 from app.repositories.meal_repository import MealRepository
 from app.models.meal import Meal
+from app.core.interfaces.base_nutrition import INutritionCalculator
+from app.exceptions import UserNotFoundException, InvalidNutritionDataException
+from app.enums import Gender, ActivityLevel, Goal
 
 
-class NutritionService:
-    """Service for nutrition-related calculations and analysis."""
+class NutritionService(INutritionCalculator):
+    """
+    Service for nutrition-related calculations and analysis.
+    
+    Implements the INutritionCalculator interface to ensure consistent
+    nutrition calculation patterns across the application.
+    
+    This demonstrates interface implementation and polymorphism.
+    """
+    
+    # Activity level multipliers for TDEE calculation
+    ACTIVITY_MULTIPLIERS = {
+        ActivityLevel.SEDENTARY.value: 1.2,
+        ActivityLevel.LIGHTLY_ACTIVE.value: 1.375,
+        ActivityLevel.MODERATELY_ACTIVE.value: 1.55,
+        ActivityLevel.VERY_ACTIVE.value: 1.725,
+        ActivityLevel.EXTREMELY_ACTIVE.value: 1.9,
+        # Also support string keys for backward compatibility
+        "sedentary": 1.2,
+        "lightly_active": 1.375,
+        "moderately_active": 1.55,
+        "very_active": 1.725,
+        "extremely_active": 1.9,
+    }
+    
+    # Goal adjustments for calorie target calculation
+    GOAL_ADJUSTMENTS = {
+        Goal.WEIGHT_LOSS.value: -500,
+        Goal.WEIGHT_GAIN.value: 500,
+        Goal.MAINTENANCE.value: 0,
+        Goal.MUSCLE_GAIN.value: 300,
+        # Also support string keys for backward compatibility
+        "weight_loss": -500,
+        "weight_gain": 500,
+        "maintenance": 0,
+        "muscle_gain": 300,
+    }
     
     @staticmethod
     def calculate_bmr(weight: float, height: float, age: int, gender: str) -> float:
@@ -24,10 +66,23 @@ class NutritionService:
         
         Returns:
             BMR in calories per day
+            
+        Raises:
+            InvalidNutritionDataException: If any input is invalid
         """
-        if gender.lower() == "male":
+        # Validate inputs
+        if weight <= 0:
+            raise InvalidNutritionDataException("Weight must be positive", "weight", weight)
+        if height <= 0:
+            raise InvalidNutritionDataException("Height must be positive", "height", height)
+        if age <= 0:
+            raise InvalidNutritionDataException("Age must be positive", "age", age)
+        
+        gender_lower = gender.lower() if isinstance(gender, str) else str(gender).lower()
+        
+        if gender_lower == "male" or gender_lower == Gender.MALE.value:
             bmr = 10 * weight + 6.25 * height - 5 * age + 5
-        elif gender.lower() == "female":
+        elif gender_lower == "female" or gender_lower == Gender.FEMALE.value:
             bmr = 10 * weight + 6.25 * height - 5 * age - 161
         else:
             # Use average of male and female formula
@@ -46,14 +101,8 @@ class NutritionService:
         Returns:
             TDEE in calories per day
         """
-        activity_multipliers = {
-            "sedentary": 1.2,
-            "lightly_active": 1.375,
-            "moderately_active": 1.55,
-            "very_active": 1.725,
-            "extremely_active": 1.9,
-        }
-        multiplier = activity_multipliers.get(activity_level.lower(), 1.2)
+        activity_level_lower = activity_level.lower() if isinstance(activity_level, str) else str(activity_level).lower()
+        multiplier = NutritionService.ACTIVITY_MULTIPLIERS.get(activity_level_lower, 1.2)
         return bmr * multiplier
     
     @staticmethod
@@ -68,13 +117,8 @@ class NutritionService:
         Returns:
             Target calories per day
         """
-        goal_adjustments = {
-            "weight_loss": -500,  # 500 calorie deficit
-            "weight_gain": 500,  # 500 calorie surplus
-            "maintenance": 0,
-            "muscle_gain": 300,  # 300 calorie surplus
-        }
-        adjustment = goal_adjustments.get(goal.lower(), 0)
+        goal_lower = goal.lower() if isinstance(goal, str) else str(goal).lower()
+        adjustment = NutritionService.GOAL_ADJUSTMENTS.get(goal_lower, 0)
         return tdee + adjustment
     
     @staticmethod
@@ -99,12 +143,14 @@ class NutritionService:
             Dictionary with protein, carbohydrates, and fat targets in grams
         """
         # Default macro ratios based on goal
+        goal_lower = goal.lower() if isinstance(goal, str) else str(goal).lower()
+        
         if not protein_ratio or not carb_ratio or not fat_ratio:
-            if goal.lower() == "weight_loss":
+            if goal_lower == "weight_loss" or goal_lower == Goal.WEIGHT_LOSS.value:
                 protein_ratio, carb_ratio, fat_ratio = 0.30, 0.40, 0.30
-            elif goal.lower() == "muscle_gain":
+            elif goal_lower == "muscle_gain" or goal_lower == Goal.MUSCLE_GAIN.value:
                 protein_ratio, carb_ratio, fat_ratio = 0.35, 0.45, 0.20
-            elif goal.lower() == "weight_gain":
+            elif goal_lower == "weight_gain" or goal_lower == Goal.WEIGHT_GAIN.value:
                 protein_ratio, carb_ratio, fat_ratio = 0.25, 0.50, 0.25
             else:  # maintenance
                 protein_ratio, carb_ratio, fat_ratio = 0.30, 0.45, 0.25
@@ -158,6 +204,9 @@ class NutritionService:
         
         Returns:
             Dictionary with daily nutrition summary and progress
+            
+        Raises:
+            UserNotFoundException: If user is not found
         """
         if meal_date is None:
             meal_date = date.today()
@@ -165,7 +214,7 @@ class NutritionService:
         # Get user to access targets
         user = UserRepository.get_by_id(db, user_id)
         if not user:
-            raise ValueError(f"User {user_id} not found")
+            raise UserNotFoundException(user_id=user_id)
         
         # Get daily nutrition
         daily_nutrition = UserMealRepository.get_daily_nutrition(db, user_id, meal_date)
@@ -196,7 +245,3 @@ class NutritionService:
                 "fat": max(0, targets["fat"] - daily_nutrition["total_fat"]),
             },
         }
-
-
-
-

@@ -1,12 +1,31 @@
-"""Meal repository for database operations."""
+"""Meal repository for database operations.
+
+This module provides the MealRepository class which handles all database
+operations for Meal entities, implementing the 3-level inheritance hierarchy:
+IRepository (Abstract) -> BaseRepository (Concrete Base) -> MealRepository
+"""
 from typing import List, Optional, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app.models.meal import Meal
+from app.core.base_repository import BaseRepository
 
 
-class MealRepository:
-    """Repository for Meal model database operations."""
+class MealRepository(BaseRepository[Meal]):
+    """
+    Repository for Meal model database operations.
+    
+    Inheritance Hierarchy (3 levels):
+    - Level 1: IRepository (Abstract interface)
+    - Level 2: BaseRepository (Concrete base with common CRUD)
+    - Level 3: MealRepository (Specific meal operations)
+    
+    This demonstrates polymorphism through method overriding and
+    provides meal-specific query methods beyond basic CRUD.
+    """
+    
+    # Set the model class for BaseRepository
+    model = Meal
     
     @staticmethod
     def get_by_id(db: Session, meal_id: int) -> Optional[Meal]:
@@ -90,7 +109,3 @@ class MealRepository:
             db.commit()
             return True
         return False
-
-
-
-
