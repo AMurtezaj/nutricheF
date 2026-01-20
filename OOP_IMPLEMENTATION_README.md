@@ -8,7 +8,7 @@ This document provides a comprehensive overview of the Object-Oriented Programmi
 
 | Requirement | Target | Status | Count |
 |-------------|--------|--------|-------|
-| Interfaces/Abstract Classes | ≥5 | ✅ PASS | **5 interfaces** |
+| Interfaces/Abstract Classes | ≥5 | ✅ PASS | **5 interfaces + 4 model mixins = 9 total** |
 | Classes | ≥15 | ✅ PASS | **50+ classes** |
 | Inheritance Levels | ≥3 | ✅ PASS | **3 levels** |
 | Polymorphism & Abstraction | Demonstrated | ✅ PASS | Multiple examples |
@@ -17,8 +17,9 @@ This document provides a comprehensive overview of the Object-Oriented Programmi
 
 ---
 
-## 1. Interfaces/Abstract Classes (5 Implemented)
+## 1. Interfaces/Abstract Classes (9 Implemented)
 
+### 1.1-1.5 Service & Logic Interfaces
 All abstract classes are located in `backend/app/core/interfaces/` and use Python's `abc` module.
 
 ### 1.1 IRepository (`base_repository.py`)
@@ -132,6 +133,71 @@ class IModelSerializer(ABC, Generic[T]):
 ```
 
 **Implemented by:** DTOs (Data Transfer Objects)
+
+### 1.6-1.9 Abstract Model Mixins
+
+Location: `backend/app/models/abstract_models.py`
+
+These are abstract base classes that provide **shared attributes and methods** for database models:
+
+#### TimestampMixin
+Provides timestamp tracking for all entities:
+```python
+class TimestampMixin:
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    def get_age(self):
+        """Calculate how long ago this entity was created."""
+```
+
+**Used by:** User, and other timestamped models
+
+#### RatedMixin
+Provides rating functionality:
+```python
+class RatedMixin:
+    average_rating = Column(Float, default=0.0)
+    rating_count = Column(Integer, default=0)
+    
+    def update_rating(self, new_rating: float, is_new: bool):
+        """Update the average rating."""
+    
+    def has_ratings(self) -> bool:
+        """Check if entity has ratings."""
+```
+
+**Used by:** Meal
+
+#### OwnedMixin
+Provides ownership tracking:
+```python
+class OwnedMixin:
+    created_by_user_id = Column(Integer, ForeignKey("users.id"))
+    
+    def is_owned_by(self, user_id: int) -> bool:
+        """Check ownership."""
+    
+    def is_system_generated(self) -> bool:
+        """Check if system-created."""
+```
+
+**Used by:** Meal
+
+#### SoftDeleteMixin
+Provides soft delete functionality:
+```python
+class SoftDeleteMixin:
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+    
+    def soft_delete(self):
+        """Mark as deleted."""
+    
+    def restore(self):
+        """Restore deleted entity."""
+```
+
+**Available for:** Any model requiring soft deletes
 
 ---
 
