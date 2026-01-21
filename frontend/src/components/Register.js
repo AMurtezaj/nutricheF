@@ -1,42 +1,34 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { userAPI } from '../services/api';
-import './Auth.css';
+import { useUser } from '../context/UserContext';
+import '../styles/design-system.css';
 
-function Register({ setCurrentUserId }) {
+function Register() {
   const [formData, setFormData] = useState({
-    email: '',
     username: '',
-    firstName: '',
-    lastName: '',
+    email: '',
+    first_name: '',
+    last_name: '',
     password: '',
     confirmPassword: ''
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
       return;
     }
 
@@ -44,191 +36,250 @@ function Register({ setCurrentUserId }) {
 
     try {
       const response = await userAPI.create({
-        email: formData.email,
         username: formData.username,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
+        email: formData.email,
+        first_name: formData.first_name,
+        last_name: formData.last_name
       });
-      
-      setCurrentUserId(response.data.id);
-      setSuccess('Account created successfully! Redirecting...');
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+
+      login(response.data.id);
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed');
+      setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const passwordStrength = (password) => {
-    if (password.length === 0) return { strength: 0, text: '', color: '' };
-    if (password.length < 6) return { strength: 1, text: 'Weak', color: 'danger' };
-    if (password.length < 10) return { strength: 2, text: 'Medium', color: 'warning' };
-    return { strength: 3, text: 'Strong', color: 'success' };
+  const styles = {
+    container: {
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: 'var(--bg-app)',
+    },
+    leftPanel: {
+      flex: 1,
+      background: 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 'var(--space-2xl)',
+      color: 'white',
+    },
+    rightPanel: {
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 'var(--space-xl)',
+      backgroundColor: 'var(--bg-surface)',
+    },
+    authCard: {
+      width: '100%',
+      maxWidth: '520px',
+      padding: 'var(--space-xl)',
+    },
+    title: {
+      fontSize: 'var(--text-3xl)',
+      marginBottom: 'var(--space-sm)',
+      color: 'var(--text-primary)',
+      fontWeight: '700',
+    },
+    subtitle: {
+      color: 'var(--text-secondary)',
+      marginBottom: 'var(--space-lg)',
+      fontSize: 'var(--text-base)',
+    },
+    row: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 'var(--space-md)',
+    },
+    inputGroup: {
+      marginBottom: 'var(--space-md)',
+    },
+    label: {
+      display: 'block',
+      marginBottom: 'var(--space-xs)',
+      fontWeight: '500',
+      fontSize: 'var(--text-sm)',
+      color: 'var(--text-primary)',
+    },
+    inputWrapper: {
+      position: 'relative',
+    },
+    input: {
+      width: '100%',
+      padding: '0.75rem 1rem 0.75rem 2.5rem',
+      borderRadius: 'var(--radius-md)',
+      border: '1px solid var(--border-color)',
+      fontSize: 'var(--text-sm)',
+      transition: 'var(--transition)',
+      outline: 'none',
+    },
+    inputIcon: {
+      position: 'absolute',
+      left: '1rem',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      color: 'var(--text-tertiary)',
+    },
+    button: {
+      width: '100%',
+      padding: '0.875rem',
+      borderRadius: 'var(--radius-md)',
+      backgroundColor: 'var(--primary)',
+      color: 'white',
+      border: 'none',
+      fontSize: 'var(--text-base)',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'var(--transition)',
+      marginTop: 'var(--space-md)',
+    }
   };
 
-  const pwdStrength = passwordStrength(formData.password);
-
   return (
-    <div className="split-screen">
-      <div className="split-left d-none d-lg-flex">
-        <div className="text-center text-white">
-          <h1 style={{fontFamily: 'Poppins', fontSize: '3rem', fontWeight: 700, marginBottom: '1rem'}}>
-            Join NutriChef AI! 🎉
-          </h1>
-          <p style={{fontSize: '1.25rem', opacity: 0.9}}>
-            Start your journey to healthier eating today
-          </p>
-        </div>
+    <div style={styles.container}>
+      {/* Left Panel */}
+      <div style={styles.leftPanel} className="d-none d-lg-flex">
+        <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: 'var(--space-md)' }}>
+          Join the Club! 🥑
+        </h1>
+        <p style={{ fontSize: '1.25rem', opacity: 0.9, textAlign: 'center', maxWidth: '400px' }}>
+          Create your account and start discovering personalized meal plans today.
+        </p>
       </div>
-      
-      <div className="split-right">
-        <div className="split-content">
-          <div className="card-modern">
-            <div className="card-body-modern">
-              <div className="text-center mb-4">
-                <h2 style={{fontFamily: 'Poppins', fontWeight: 700, fontSize: '2rem', color: 'var(--primary)'}}>
-                  🍽️ NutriChef AI
-                </h2>
-                <p className="text-muted mt-2">Create your free account</p>
-              </div>
 
-              {error && <Alert variant="danger">{error}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
+      {/* Right Panel */}
+      <div style={styles.rightPanel}>
+        <div style={styles.authCard}>
+          <h2 style={styles.title}>Create Account</h2>
+          <p style={styles.subtitle}>Fill in your details to get started.</p>
 
-              <Form onSubmit={handleSubmit}>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label className="form-label-modern">First Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="firstName"
-                        className="form-control-modern"
-                        placeholder="John"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label className="form-label-modern">Last Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="lastName"
-                        className="form-control-modern"
-                        placeholder="Doe"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Username</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="username"
-                    className="form-control-modern"
-                    placeholder="johndoe"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Email Address</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    className="form-control-modern"
-                    placeholder="your@email.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    className="form-control-modern"
-                    placeholder="Create a password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                  {formData.password && (
-                    <div className="mt-2">
-                      <div className="progress-modern">
-                        <div
-                          className={`progress-bar-modern bg-${pwdStrength.color}`}
-                          style={{ width: `${(pwdStrength.strength / 3) * 100}%` }}
-                        />
-                      </div>
-                      <small className={`text-${pwdStrength.color}`}>
-                        Password strength: {pwdStrength.text}
-                      </small>
-                    </div>
-                  )}
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Confirm Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="confirmPassword"
-                    className="form-control-modern"
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Check
-                    type="checkbox"
-                    label={
-                      <span>
-                        I agree to the{' '}
-                        <Link to="#" style={{color: 'var(--primary)'}}>Terms & Conditions</Link>
-                        {' '}and{' '}
-                        <Link to="#" style={{color: 'var(--primary)'}}>Privacy Policy</Link>
-                      </span>
-                    }
-                    required
-                  />
-                </Form.Group>
-
-                <Button
-                  type="submit"
-                  className="btn-modern btn-primary-modern w-100 mb-3"
-                  disabled={loading}
-                >
-                  {loading ? 'Creating Account...' : 'Create Account'}
-                </Button>
-
-                <div className="text-center">
-                  <p className="text-muted mb-0">
-                    Already have an account?{' '}
-                    <Link to="/login" style={{color: 'var(--primary)', textDecoration: 'none', fontWeight: 600}}>
-                      Sign in here
-                    </Link>
-                  </p>
-                </div>
-              </Form>
+          {error && (
+            <div style={{
+              padding: 'var(--space-sm) var(--space-md)',
+              backgroundColor: 'rgba(255, 90, 95, 0.1)',
+              color: 'var(--danger)',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: 'var(--space-lg)',
+              fontSize: 'var(--text-sm)'
+            }}>
+              {error}
             </div>
-          </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div style={styles.row}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>First Name</label>
+                <div style={styles.inputWrapper}>
+                  <FaUser style={styles.inputIcon} />
+                  <input
+                    type="text"
+                    name="first_name"
+                    style={styles.input}
+                    placeholder="John"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Last Name</label>
+                <div style={styles.inputWrapper}>
+                  <FaUser style={styles.inputIcon} />
+                  <input
+                    type="text"
+                    name="last_name"
+                    style={styles.input}
+                    placeholder="Doe"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Username</label>
+              <div style={styles.inputWrapper}>
+                <FaUser style={styles.inputIcon} />
+                <input
+                  type="text"
+                  name="username"
+                  style={styles.input}
+                  placeholder="johndoe"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Email Address</label>
+              <div style={styles.inputWrapper}>
+                <FaEnvelope style={styles.inputIcon} />
+                <input
+                  type="email"
+                  name="email"
+                  style={styles.input}
+                  placeholder="john@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Password</label>
+              <div style={styles.inputWrapper}>
+                <FaLock style={styles.inputIcon} />
+                <input
+                  type="password"
+                  name="password"
+                  style={styles.input}
+                  placeholder="Create a password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Confirm Password</label>
+              <div style={styles.inputWrapper}>
+                <FaLock style={styles.inputIcon} />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  style={styles.input}
+                  placeholder="Confirm password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" style={styles.button} disabled={loading}>
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <p style={{ textAlign: 'center', marginTop: 'var(--space-lg)', color: 'var(--text-secondary)' }}>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: 'var(--primary)', fontWeight: '600' }}>
+              Log in
+            </Link>
+          </p>
         </div>
       </div>
     </div>
@@ -236,7 +287,3 @@ function Register({ setCurrentUserId }) {
 }
 
 export default Register;
-
-
-
-

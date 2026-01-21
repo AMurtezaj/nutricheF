@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import { FaGoogle, FaFacebookF, FaEnvelope, FaLock } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 import { userAPI } from '../services/api';
-import './Auth.css';
+import { useUser } from '../context/UserContext';
+import '../styles/design-system.css';
 
-function Login({ setCurrentUserId }) {
+function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,129 +20,242 @@ function Login({ setCurrentUserId }) {
     setLoading(true);
 
     try {
-      // Get all users and find user by email
       const response = await userAPI.getAll();
       const user = response.data.find(u => u.email === email);
-      
+
       if (!user) {
-        setError('Invalid email or password. Please check your credentials.');
+        setError('Invalid email. Please check your credentials.');
+        setLoading(false);
         return;
       }
 
-      // For now, we just verify the email exists since password field is not in the User model yet
-      // In a future update, we'll verify the password when it's added to the model
-      setCurrentUserId(user.id);
+      login(user.id);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.');
+      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const styles = {
+    container: {
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: 'var(--bg-app)',
+    },
+    leftPanel: {
+      flex: 1,
+      background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 'var(--space-2xl)',
+      color: 'white',
+      position: 'relative',
+      overflow: 'hidden',
+    },
+    rightPanel: {
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 'var(--space-xl)',
+      backgroundColor: 'var(--bg-surface)',
+    },
+    authCard: {
+      width: '100%',
+      maxWidth: '480px',
+      padding: 'var(--space-2xl)',
+    },
+    title: {
+      fontSize: 'var(--text-4xl)',
+      marginBottom: 'var(--space-sm)',
+      color: 'var(--text-primary)',
+      fontWeight: '700',
+    },
+    subtitle: {
+      color: 'var(--text-secondary)',
+      marginBottom: 'var(--space-xl)',
+      fontSize: 'var(--text-lg)',
+    },
+    inputGroup: {
+      marginBottom: 'var(--space-lg)',
+    },
+    label: {
+      display: 'block',
+      marginBottom: 'var(--space-xs)',
+      fontWeight: '500',
+      color: 'var(--text-primary)',
+    },
+    inputWrapper: {
+      position: 'relative',
+    },
+    input: {
+      width: '100%',
+      padding: '0.875rem 1rem 0.875rem 2.5rem',
+      borderRadius: 'var(--radius-md)',
+      border: '1px solid var(--border-color)',
+      fontSize: 'var(--text-base)',
+      transition: 'var(--transition)',
+      outline: 'none',
+    },
+    inputIcon: {
+      position: 'absolute',
+      left: '1rem',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      color: 'var(--text-tertiary)',
+    },
+    button: {
+      width: '100%',
+      padding: '0.875rem',
+      borderRadius: 'var(--radius-md)',
+      backgroundColor: 'var(--primary)',
+      color: 'white',
+      border: 'none',
+      fontSize: 'var(--text-base)',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'var(--transition)',
+      marginBottom: 'var(--space-lg)',
+    },
+    divider: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 'var(--space-md)',
+      color: 'var(--text-tertiary)',
+      margin: 'var(--space-lg) 0',
+      fontSize: 'var(--text-sm)',
+    },
+    line: {
+      flex: 1,
+      height: '1px',
+      backgroundColor: 'var(--border-color)',
+    },
+    socialBtn: {
+      width: '100%',
+      padding: '0.75rem',
+      borderRadius: 'var(--radius-md)',
+      border: '1px solid var(--border-color)',
+      backgroundColor: 'white',
+      color: 'var(--text-primary)',
+      fontWeight: '500',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 'var(--space-sm)',
+      marginBottom: 'var(--space-sm)',
+    }
+  };
+
   return (
-    <div className="split-screen">
-      <div className="split-left d-none d-lg-flex">
-        <div className="text-center text-white">
-          <h1 style={{fontFamily: 'Poppins', fontSize: '3rem', fontWeight: 700, marginBottom: '1rem'}}>
-            Welcome Back! 👋
-          </h1>
-          <p style={{fontSize: '1.25rem', opacity: 0.9}}>
-            Sign in to continue your healthy journey
-          </p>
-        </div>
-      </div>
-      
-      <div className="split-right">
-        <div className="split-content">
-          <div className="card-modern">
-            <div className="card-body-modern">
-              <div className="text-center mb-4">
-                <h2 style={{fontFamily: 'Poppins', fontWeight: 700, fontSize: '2rem', color: 'var(--primary)'}}>
-                  🍽️ NutriChef AI
-                </h2>
-                <p className="text-muted mt-2">Sign in to your account</p>
-              </div>
+    <div style={styles.container}>
+      {/* Left Panel - Brand */}
+      <motion.div
+        style={styles.leftPanel}
+        className="d-none d-lg-flex"
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: 'var(--space-md)' }}>
+          NutriChef AI 🍽️
+        </h1>
+        <p style={{ fontSize: '1.25rem', opacity: 0.9, textAlign: 'center', maxWidth: '400px' }}>
+          Your personal nutrition assistant. Discover meals, track calories, and live healthier.
+        </p>
+      </motion.div>
 
-              {error && <Alert variant="danger">{error}</Alert>}
+      {/* Right Panel - Login Form */}
+      <div style={styles.rightPanel}>
+        <motion.div
+          style={styles.authCard}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <h2 style={styles.title}>Welcome Back</h2>
+          <p style={styles.subtitle}>Please enter your details to sign in.</p>
 
-              <Form onSubmit={handleLogin}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Email Address</Form.Label>
-                  <Form.Control
-                    type="email"
-                    className="form-control-modern"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label className="form-label-modern">Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    className="form-control-modern"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <div className="text-end mt-2">
-                    <Link to="#" style={{color: 'var(--primary)', textDecoration: 'none', fontSize: '0.9rem'}}>
-                      Forgot password?
-                    </Link>
-                  </div>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Check
-                    type="checkbox"
-                    label="Remember me"
-                    className="form-label-modern"
-                  />
-                </Form.Group>
-
-                <Button
-                  type="submit"
-                  className="btn-modern btn-primary-modern w-100 mb-3"
-                  disabled={loading}
-                >
-                  {loading ? 'Signing in...' : 'Sign In'}
-                </Button>
-
-                <div className="text-center">
-                  <p className="text-muted mb-0">
-                    Don't have an account?{' '}
-                    <Link to="/register" style={{color: 'var(--primary)', textDecoration: 'none', fontWeight: 600}}>
-                      Sign up here
-                    </Link>
-                  </p>
-                </div>
-
-                <div className="mt-4">
-                  <div className="divider">
-                    <span>Or continue with</span>
-                  </div>
-                  <div className="social-login mt-3">
-                    <Button variant="outline" className="w-100 mb-2" style={{borderColor: 'var(--border)', borderRadius: '12px'}}>
-                      🔵 Continue with Google
-                    </Button>
-                    <Button variant="outline" className="w-100" style={{borderColor: 'var(--border)', borderRadius: '12px'}}>
-                      📘 Continue with Facebook
-                    </Button>
-                  </div>
-                </div>
-              </Form>
+          {error && (
+            <div style={{
+              padding: 'var(--space-md)',
+              backgroundColor: 'rgba(255, 90, 95, 0.1)',
+              color: 'var(--danger)',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: 'var(--space-lg)'
+            }}>
+              {error}
             </div>
+          )}
+
+          <form onSubmit={handleLogin}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Email Address</label>
+              <div style={styles.inputWrapper}>
+                <FaEnvelope style={styles.inputIcon} />
+                <input
+                  type="email"
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Password</label>
+              <div style={styles.inputWrapper}>
+                <FaLock style={styles.inputIcon} />
+                <input
+                  type="password"
+                  style={styles.input}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div style={{ textAlign: 'right', marginTop: 'var(--space-xs)' }}>
+                <a href="#" style={{ fontSize: 'var(--text-sm)', color: 'var(--primary)', fontWeight: '500' }}>
+                  Forgot Password?
+                </a>
+              </div>
+            </div>
+
+            <button type="submit" style={styles.button} disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div style={styles.divider}>
+            <div style={styles.line}></div>
+            <span>Or continue with</span>
+            <div style={styles.line}></div>
           </div>
-        </div>
+
+          <button style={styles.socialBtn}>
+            <FaGoogle color="#DB4437" /> Google
+          </button>
+          <button style={styles.socialBtn}>
+            <FaFacebookF color="#4267B2" /> Facebook
+          </button>
+
+          <p style={{ textAlign: 'center', marginTop: 'var(--space-xl)', color: 'var(--text-secondary)' }}>
+            Don't have an account?{' '}
+            <Link to="/register" style={{ color: 'var(--primary)', fontWeight: '600' }}>
+              Sign up
+            </Link>
+          </p>
+        </motion.div>
       </div>
     </div>
   );
 }
 
 export default Login;
-
-

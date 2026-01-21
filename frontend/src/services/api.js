@@ -15,7 +15,7 @@ export const userAPI = {
   get: (userId) => api.get(`/api/users/${userId}`),
   getAll: (skip = 0, limit = 100) => api.get('/api/users', { params: { skip, limit } }),
   update: (userId, userData) => api.put(`/api/users/${userId}`, userData),
-  updatePreferences: (userId, preferences) => 
+  updatePreferences: (userId, preferences) =>
     api.put(`/api/users/${userId}/preferences`, preferences),
   getPreferences: (userId) =>
     api.get(`/api/users/${userId}/preferences`),
@@ -29,9 +29,9 @@ export const mealAPI = {
     return api.get('/api/meals', { params });
   },
   get: (mealId) => api.get(`/api/meals/${mealId}`),
-  search: (query, skip = 0, limit = 100) => 
+  search: (query, skip = 0, limit = 100) =>
     api.get(`/api/meals/search/${query}`, { params: { skip, limit } }),
-  addUserMeal: (userId, mealData) => 
+  addUserMeal: (userId, mealData) =>
     api.post(`/api/meals/users/${userId}/meals`, mealData),
   getUserMeals: (userId, mealDate = null) => {
     const params = mealDate ? { meal_date: mealDate } : {};
@@ -41,7 +41,7 @@ export const mealAPI = {
 
 // Nutrition API
 export const nutritionAPI = {
-  analyzeMeal: (mealId, servings = 1.0) => 
+  analyzeMeal: (mealId, servings = 1.0) =>
     api.post('/api/nutrition/analyze', { meal_id: mealId, servings }),
   getDailyNutrition: (userId, mealDate = null) => {
     const params = mealDate ? { meal_date: mealDate } : {};
@@ -57,6 +57,7 @@ export const recommendationAPI = {
     return api.get(`/api/recommendations/users/${userId}`, { params });
   },
 };
+
 
 // AI Recipe API
 export const aiRecipeAPI = {
