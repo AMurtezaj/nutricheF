@@ -1,6 +1,9 @@
 """
 Enhanced recommendation service with ML model integration.
 Combines collaborative filtering with content-based filtering.
+
+This module provides the MLRecommendationService class which handles
+ML-based recommendation logic, implementing the IRecommendationEngine interface.
 """
 
 import os
@@ -16,8 +19,9 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.preference_repository import PreferenceRepository
 from app.repositories.user_meal_repository import UserMealRepository
 from app.services.nutrition_service import NutritionService
-from app.services.recommendation_service import RecommendationService
+from app.services.recommendation_service import BaseRecommendationService, RecommendationService
 from app.services.cache_service import cached
+from app.exceptions import UserNotFoundException
 from datetime import date
 
 logger = logging.getLogger(__name__)
@@ -27,7 +31,7 @@ MODELS_DIR = Path(__file__).parent.parent.parent.parent / "models"
 ML_MODEL_FILE = MODELS_DIR / "collaborative_filtering_model.pkl"
 
 
-class MLRecommendationService:
+class MLRecommendationService(BaseRecommendationService):
     """
     Enhanced recommendation service with ML model integration.
     
@@ -35,6 +39,15 @@ class MLRecommendationService:
     - Collaborative filtering (from ML model)
     - Content-based filtering (from existing service)
     - Hybrid approach for best results
+    
+    Inheritance Hierarchy (3 levels):
+    - Level 1: IRecommendationEngine (Abstract interface)
+    - Level 2: BaseRecommendationService (Concrete base)
+    - Level 3: MLRecommendationService (ML-enhanced recommendations)
+    
+    This demonstrates polymorphism - both RecommendationService and
+    MLRecommendationService implement the same interface but with
+    different algorithms.
     """
     
     _ml_model = None
@@ -68,6 +81,23 @@ class MLRecommendationService:
             return None
     
     @staticmethod
+    def calculate_score(
+        meal,
+        user,
+        preference,
+        user_meals: List,
+        today_nutrition: Dict
+    ) -> float:
+        """
+        Calculate score using content-based filtering.
+        
+        This method is called as a fallback when ML predictions are not available.
+        """
+        return RecommendationService._calculate_meal_score(
+            meal, user, preference, user_meals, today_nutrition
+        )
+    
+    @staticmethod
     @cached(ttl_seconds=1800)  # Cache for 30 minutes
     def get_recommendations(
         db: Session,
@@ -88,11 +118,14 @@ class MLRecommendationService:
         
         Returns:
             List of recommended meals with scores and reasons
+            
+        Raises:
+            UserNotFoundException: If user is not found
         """
         # Get user
         user = UserRepository.get_by_id(db, user_id)
         if not user:
-            raise ValueError(f"User {user_id} not found")
+            raise UserNotFoundException(user_id=user_id)
         
         # Get all meals (or filtered by category)
         if category:
@@ -260,4 +293,3 @@ class MLRecommendationService:
                 })
         
         return popular_meals
-

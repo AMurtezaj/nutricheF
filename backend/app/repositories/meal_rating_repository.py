@@ -1,12 +1,28 @@
-"""Repository for MealRating operations."""
+"""Repository for MealRating operations.
+
+This module provides the MealRatingRepository class which handles all database
+operations for MealRating entities, implementing the 3-level inheritance hierarchy:
+IRepository (Abstract) -> BaseRepository (Concrete Base) -> MealRatingRepository
+"""
 from typing import List, Optional, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
 from app.models.meal_rating import MealRating
+from app.exceptions import RatingValidationException
 
 
 class MealRatingRepository:
     """Repository for MealRating model operations."""
+    
+    @staticmethod
+    def get_by_id(db: Session, rating_id: int) -> Optional[MealRating]:
+        """Get rating by ID."""
+        return db.query(MealRating).filter(MealRating.id == rating_id).first()
+    
+    @staticmethod
+    def get_all(db: Session, skip: int = 0, limit: int = 100) -> List[MealRating]:
+        """Get all ratings with pagination."""
+        return db.query(MealRating).offset(skip).limit(limit).all()
     
     @staticmethod
     def create_or_update_rating(
@@ -17,9 +33,9 @@ class MealRatingRepository:
         review: Optional[str] = None
     ) -> MealRating:
         """Create or update a meal rating."""
-        # Validate rating
+        # Validate rating using custom exception
         if rating < 1 or rating > 5:
-            raise ValueError("Rating must be between 1 and 5")
+            raise RatingValidationException(rating)
         
         # Check if rating exists
         existing = db.query(MealRating).filter(
@@ -85,8 +101,33 @@ class MealRatingRepository:
             db.commit()
             return True
         return False
-
-
-
-
-
+    
+    @staticmethod
+    def create(db: Session, rating_data: dict) -> MealRating:
+        """Create a new rating."""
+        rating = MealRating(**rating_data)
+        db.add(rating)
+        db.commit()
+        db.refresh(rating)
+        return rating
+    
+    @staticmethod
+    def update(db: Session, rating_id: int, rating_data: dict) -> Optional[MealRating]:
+        """Update a rating."""
+        rating = MealRatingRepository.get_by_id(db, rating_id)
+        if rating:
+            for key, value in rating_data.items():
+                setattr(rating, key, value)
+            db.commit()
+            db.refresh(rating)
+        return rating
+    
+    @staticmethod
+    def delete(db: Session, rating_id: int) -> bool:
+        """Delete a rating by ID."""
+        rating = MealRatingRepository.get_by_id(db, rating_id)
+        if rating:
+            db.delete(rating)
+            db.commit()
+            return True
+        return False

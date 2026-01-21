@@ -1,13 +1,50 @@
-"""Service for user-related business logic."""
+"""Service for user-related business logic.
+
+This module provides the UserService class which handles business logic
+for user operations, implementing the 3-level inheritance hierarchy:
+IService (Abstract) -> BaseService (Concrete Base) -> UserService
+"""
 from typing import Dict, Optional
 from sqlalchemy.orm import Session
 from app.repositories.user_repository import UserRepository
 from app.repositories.preference_repository import PreferenceRepository
 from app.services.nutrition_service import NutritionService
+from app.core.base_service import BaseService
+from app.exceptions import UserNotFoundException
 
 
-class UserService:
-    """Service for user-related operations."""
+class UserService(BaseService):
+    """
+    Service for user-related operations.
+    
+    Inheritance Hierarchy (3 levels):
+    - Level 1: IService (Abstract interface)
+    - Level 2: BaseService (Concrete base with common operations)
+    - Level 3: UserService (Specific user business logic)
+    """
+    
+    # Set the repository class for BaseService
+    repository = UserRepository
+    
+    @staticmethod
+    def get_by_id(db: Session, user_id: int) -> Optional[Dict]:
+        """Get user by ID."""
+        return UserRepository.get_by_id(db, user_id)
+    
+    @staticmethod
+    def create(db: Session, user_data: Dict) -> Dict:
+        """Create a new user (alias for create_user)."""
+        return UserService.create_user(db, user_data)
+    
+    @staticmethod
+    def update(db: Session, user_id: int, user_data: Dict) -> Optional[Dict]:
+        """Update user (alias for update_user)."""
+        return UserService.update_user(db, user_id, user_data)
+    
+    @staticmethod
+    def delete(db: Session, user_id: int) -> bool:
+        """Delete a user."""
+        return UserRepository.delete(db, user_id)
     
     @staticmethod
     def create_user(db: Session, user_data: Dict) -> Dict:
@@ -95,8 +132,6 @@ class UserService:
     @staticmethod
     def get_user_preferences(db: Session, user_id: int) -> Optional[Dict]:
         """Get user preferences for a given user. Create default if none exist."""
-        from app.repositories.user_repository import UserRepository  # Local import to avoid circular
-
         # Ensure user exists
         user = UserRepository.get_by_id(db, user_id)
         if not user:
@@ -107,7 +142,3 @@ class UserService:
             # Create a default preference record so frontend always gets a consistent object
             preference = PreferenceRepository.create(db, {"user_id": user_id})
         return preference
-
-
-
-

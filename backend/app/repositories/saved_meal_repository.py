@@ -1,13 +1,39 @@
-"""Repository for SavedMeal operations."""
+"""Repository for SavedMeal operations.
+
+This module provides the SavedMealRepository class which handles all database
+operations for SavedMeal entities, implementing the 3-level inheritance hierarchy:
+IRepository (Abstract) -> BaseRepository (Concrete Base) -> SavedMealRepository
+"""
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from app.models.saved_meal import SavedMeal
 from app.models.meal import Meal
+from app.core.base_repository import BaseRepository
 
 
-class SavedMealRepository:
-    """Repository for SavedMeal model operations."""
+class SavedMealRepository(BaseRepository[SavedMeal]):
+    """
+    Repository for SavedMeal model operations.
+    
+    Inheritance Hierarchy (3 levels):
+    - Level 1: IRepository (Abstract interface)
+    - Level 2: BaseRepository (Concrete base with common CRUD)
+    - Level 3: SavedMealRepository (Specific saved meal operations)
+    """
+    
+    # Set the model class for BaseRepository
+    model = SavedMeal
+    
+    @staticmethod
+    def get_by_id(db: Session, saved_meal_id: int) -> Optional[SavedMeal]:
+        """Get saved meal by ID."""
+        return db.query(SavedMeal).filter(SavedMeal.id == saved_meal_id).first()
+    
+    @staticmethod
+    def get_all(db: Session, skip: int = 0, limit: int = 100) -> List[SavedMeal]:
+        """Get all saved meals with pagination."""
+        return db.query(SavedMeal).offset(skip).limit(limit).all()
     
     @staticmethod
     def save_meal(db: Session, user_id: int, meal_id: int, note: Optional[str] = None) -> SavedMeal:
@@ -62,8 +88,33 @@ class SavedMealRepository:
         return db.query(SavedMeal).filter(
             and_(SavedMeal.user_id == user_id, SavedMeal.meal_id == meal_id)
         ).first() is not None
-
-
-
-
-
+    
+    @staticmethod
+    def create(db: Session, saved_meal_data: dict) -> SavedMeal:
+        """Create a new saved meal."""
+        saved_meal = SavedMeal(**saved_meal_data)
+        db.add(saved_meal)
+        db.commit()
+        db.refresh(saved_meal)
+        return saved_meal
+    
+    @staticmethod
+    def update(db: Session, saved_meal_id: int, saved_meal_data: dict) -> Optional[SavedMeal]:
+        """Update a saved meal."""
+        saved_meal = SavedMealRepository.get_by_id(db, saved_meal_id)
+        if saved_meal:
+            for key, value in saved_meal_data.items():
+                setattr(saved_meal, key, value)
+            db.commit()
+            db.refresh(saved_meal)
+        return saved_meal
+    
+    @staticmethod
+    def delete(db: Session, saved_meal_id: int) -> bool:
+        """Delete a saved meal by ID."""
+        saved_meal = SavedMealRepository.get_by_id(db, saved_meal_id)
+        if saved_meal:
+            db.delete(saved_meal)
+            db.commit()
+            return True
+        return False

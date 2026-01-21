@@ -6,8 +6,10 @@ from app.controllers import (
     user_router,
     meal_router,
     nutrition_router,
-    recommendation_router
+    recommendation_router,
+    ai_recipe_router
 )
+
 from app.controllers.saved_meal_controller import router as saved_meal_router
 from app.controllers.meal_rating_controller import router as rating_router
 from app.repositories.database import init_db
@@ -38,10 +40,14 @@ app.include_router(recommendation_router)
 app.include_router(saved_meal_router)
 app.include_router(rating_router)
 
+# AI recipe router is optional - only include if available
+if ai_recipe_router:
+    app.include_router(ai_recipe_router)
+
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup."""
+    """Initialize database on startup (only creates tables if they don't exist)."""
     init_db()
 
 

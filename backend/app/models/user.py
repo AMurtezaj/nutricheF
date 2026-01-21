@@ -4,10 +4,17 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 from app.models.base import Base
+from app.models.abstract_models import TimestampMixin
 
 
-class User(Base):
-    """User model representing users of the application."""
+class User(Base, TimestampMixin):
+    """
+    User model representing users of the application.
+    
+    Inherits from:
+    - Base: SQLAlchemy declarative base
+    - TimestampMixin: Provides created_at and updated_at fields
+    """
     
     __tablename__ = "users"
     
@@ -31,9 +38,8 @@ class User(Base):
     daily_carb_target = Column(Float)  # in grams
     daily_fat_target = Column(Float)  # in grams
     
-    # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    # Timestamps inherited from TimestampMixin:
+    # created_at, updated_at, get_age()
     
     # Relationships
     preferences = relationship("Preference", back_populates="user", cascade="all, delete-orphan")

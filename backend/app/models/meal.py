@@ -1,11 +1,19 @@
 """Meal model."""
-from sqlalchemy import Column, Integer, String, Float, Text, Boolean
+from sqlalchemy import Column, Integer, String, Float, Text, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.models.base import Base
+from app.models.abstract_models import RatedMixin, OwnedMixin
 
 
-class Meal(Base):
-    """Meal model representing meals available in the system."""
+class Meal(Base, RatedMixin, OwnedMixin):
+    """
+    Meal model representing meals available in the system.
+    
+    Inherits from:
+    - Base: SQLAlchemy declarative base
+    - RatedMixin: Provides average_rating, rating_count, and rating methods
+    - OwnedMixin: Provides created_by_user_id and ownership methods
+    """
     
     __tablename__ = "meals"
     
@@ -25,6 +33,12 @@ class Meal(Base):
     
     # Serving information
     serving_size = Column(String(100))  # e.g., "1 cup", "200g"
+    
+    # Ingredients (comma-separated list for AI model training)
+    ingredients = Column(Text)  # e.g., "chicken, rice, tomatoes, onions"
+    
+    # Inherited from RatedMixin: average_rating, rating_count, update_rating(), has_ratings()
+    # Inherited from OwnedMixin: created_by_user_id, is_owned_by(), is_system_generated()
     
     # Dietary tags
     is_vegetarian = Column(Boolean, default=False)

@@ -38,6 +38,28 @@ function FindMeals() {
     }
   }, [selectedIngredients]);
 
+  // Load user ratings for displayed meals
+  useEffect(() => {
+    if (meals.length > 0 && currentUserId) {
+      loadUserRatings();
+    }
+  }, [meals, currentUserId]);
+
+  const loadUserRatings = async () => {
+    const ratings = {};
+    for (const meal of meals) {
+      try {
+        const response = await aiRecipeAPI.getUserRating(meal.id, currentUserId);
+        if (response.data) {
+          ratings[meal.id] = response.data.rating;
+        }
+      } catch (err) {
+        // User hasn't rated this meal yet
+      }
+    }
+    setUserRatings(ratings);
+  };
+
   const toggleIngredient = (ingredient) => {
     if (selectedIngredients.includes(ingredient)) {
       setSelectedIngredients(selectedIngredients.filter(i => i !== ingredient));
@@ -86,6 +108,49 @@ function FindMeals() {
       // Logic for save would go here, maybe move it to a common context or hook
       alert('Save functionality pending common context refactor');
     }
+  };
+
+  const handleRateClick = (e, meal) => {
+    e.stopPropagation();
+    if (!currentUserId) {
+      alert('Please login to rate recipes');
+      return;
+    }
+    setRatingMeal(meal);
+    setRatingValue(userRatings[meal.id] || 0);
+    setRatingComment('');
+    setShowRatingModal(true);
+  };
+
+  const handleSubmitRating = async () => {
+    if (!ratingMeal || !currentUserId || ratingValue === 0) {
+      alert('Please select a rating (1-5 stars)');
+      return;
+    }
+
+    try {
+      await aiRecipeAPI.rateRecipe(ratingMeal.id, currentUserId, ratingValue, ratingComment || null);
+      setUserRatings({ ...userRatings, [ratingMeal.id]: ratingValue });
+      setShowRatingModal(false);
+      // Refresh meals to show updated ratings
+      searchMeals();
+    } catch (err) {
+      alert('Failed to submit rating: ' + (err.response?.data?.detail || ''));
+    }
+  };
+
+  const handleCreateRecipe = () => {
+    if (!currentUserId) {
+      alert('Please login to create recipes');
+      return;
+    }
+    setShowCreateModal(true);
+  };
+
+  const handleRecipeCreated = () => {
+    setShowCreateModal(false);
+    // Retrain model and refresh results
+    searchMeals();
   };
 
   const filteredIngredients = availableIngredients.filter(ing =>

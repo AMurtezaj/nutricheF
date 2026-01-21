@@ -17,6 +17,7 @@ class MealCreate(BaseModel):
     name: str
     description: str = None
     category: str
+    ingredients: str = None  # Comma-separated list
     calories: float
     protein: float
     carbohydrates: float
@@ -32,6 +33,7 @@ class MealCreate(BaseModel):
     is_nut_free: bool = False
     is_halal: bool = False
     is_kosher: bool = False
+    created_by_user_id: int = None
 
 
 class MealResponse(BaseModel):
@@ -39,6 +41,7 @@ class MealResponse(BaseModel):
     name: str
     description: str = None
     category: str
+    ingredients: str = None
     calories: float
     protein: float
     carbohydrates: float
@@ -54,8 +57,8 @@ class MealResponse(BaseModel):
     is_nut_free: bool = False
     is_halal: bool = False
     is_kosher: bool = False
-    average_rating: Optional[float] = None
-    total_ratings: Optional[int] = None
+    average_rating: float = 0.0
+    rating_count: int = 0
     
     class Config:
         from_attributes = True
@@ -96,7 +99,7 @@ def get_meal(meal_id: int, db: Session = Depends(get_db)):
     """Get meal by ID with rating statistics."""
     meal = MealService.get_meal_by_id(db, meal_id)
     if not meal:
-        raise HTTPException(status_code=404, detail="Meal not found")
+        raise HTTPException(status_code=404, detail=str(MealNotFoundException(meal_id=meal_id)))
     
     # Get rating stats
     rating_stats = MealRatingRepository.get_meal_rating_stats(db, meal_id)

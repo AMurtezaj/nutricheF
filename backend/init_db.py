@@ -1,6 +1,6 @@
 """Script to initialize the database with sample data."""
 from app.repositories.database import SessionLocal, init_db
-from app.models import User, Meal, Preference
+from app.models import User, Meal, Preference, RecipeRating
 from app.repositories.user_repository import UserRepository
 from app.repositories.meal_repository import MealRepository
 from app.repositories.preference_repository import PreferenceRepository
@@ -22,6 +22,7 @@ def create_sample_data():
                 "name": "Grilled Chicken Breast",
                 "description": "Lean grilled chicken breast with herbs",
                 "category": "dinner",
+                "ingredients": "chicken, olive oil, garlic, herbs, salt, pepper",
                 "calories": 231,
                 "protein": 43.5,
                 "carbohydrates": 0,
@@ -40,6 +41,7 @@ def create_sample_data():
                 "name": "Greek Salad",
                 "description": "Fresh vegetables with feta cheese and olives",
                 "category": "lunch",
+                "ingredients": "tomatoes, cucumbers, onions, feta cheese, olives, olive oil, vinegar",
                 "calories": 320,
                 "protein": 12.0,
                 "carbohydrates": 25.0,
@@ -57,6 +59,7 @@ def create_sample_data():
                 "name": "Oatmeal with Berries",
                 "description": "Steel-cut oats with mixed berries and honey",
                 "category": "breakfast",
+                "ingredients": "oats, berries, honey, milk, banana",
                 "calories": 350,
                 "protein": 12.0,
                 "carbohydrates": 58.0,
@@ -74,6 +77,7 @@ def create_sample_data():
                 "name": "Salmon Fillet with Quinoa",
                 "description": "Baked salmon with quinoa and steamed vegetables",
                 "category": "dinner",
+                "ingredients": "salmon, quinoa, broccoli, carrots, lemon, olive oil, garlic",
                 "calories": 485,
                 "protein": 38.0,
                 "carbohydrates": 42.0,
@@ -91,6 +95,7 @@ def create_sample_data():
                 "name": "Veggie Wrap",
                 "description": "Whole wheat wrap with hummus and fresh vegetables",
                 "category": "lunch",
+                "ingredients": "bread, hummus, tomatoes, spinach, peppers, onions",
                 "calories": 290,
                 "protein": 10.0,
                 "carbohydrates": 45.0,

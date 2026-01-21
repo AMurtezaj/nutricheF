@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     
     # ML Model settings
     ML_MODEL_PATH: Optional[str] = os.getenv("ML_MODEL_PATH", None)
+    
+    # AI/ML settings
+    SIMILARITY_THRESHOLD: Optional[float] = 0.7
+    OPENAI_API_KEY: Optional[str] = None
 
 
 settings = Settings()

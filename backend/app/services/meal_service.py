@@ -1,4 +1,9 @@
-"""Service for meal-related business logic."""
+"""Service for meal-related business logic.
+
+This module provides the MealService class which handles business logic
+for meal operations, implementing the 3-level inheritance hierarchy:
+IService (Abstract) -> BaseService (Concrete Base) -> MealService
+"""
 from typing import List, Dict, Optional
 from sqlalchemy.orm import Session
 from app.repositories.meal_repository import MealRepository
@@ -6,15 +11,48 @@ from app.repositories.user_meal_repository import UserMealRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.preference_repository import PreferenceRepository
 from app.services.nutrition_service import NutritionService
+from app.core.base_service import BaseService
+from app.exceptions import MealNotFoundException
 from datetime import date
 
 
-class MealService:
-    """Service for meal-related operations."""
+class MealService(BaseService):
+    """
+    Service for meal-related operations.
+    
+    Inheritance Hierarchy (3 levels):
+    - Level 1: IService (Abstract interface)
+    - Level 2: BaseService (Concrete base with common operations)
+    - Level 3: MealService (Specific meal business logic)
+    """
+    
+    # Set the repository class for BaseService
+    repository = MealRepository
+    
+    @staticmethod
+    def get_by_id(db: Session, meal_id: int) -> Optional[Dict]:
+        """Get meal by ID."""
+        return MealRepository.get_by_id(db, meal_id)
+    
+    @staticmethod
+    def create(db: Session, meal_data: Dict) -> Dict:
+        """Create a new meal."""
+        meal = MealRepository.create(db, meal_data)
+        return meal
+    
+    @staticmethod
+    def update(db: Session, meal_id: int, meal_data: Dict) -> Optional[Dict]:
+        """Update meal information."""
+        return MealRepository.update(db, meal_id, meal_data)
+    
+    @staticmethod
+    def delete(db: Session, meal_id: int) -> bool:
+        """Delete a meal."""
+        return MealRepository.delete(db, meal_id)
     
     @staticmethod
     def create_meal(db: Session, meal_data: Dict) -> Dict:
-        """Create a new meal."""
+        """Create a new meal (alias for create)."""
         meal = MealRepository.create(db, meal_data)
         return meal
     
@@ -26,7 +64,7 @@ class MealService:
     
     @staticmethod
     def get_meal_by_id(db: Session, meal_id: int) -> Optional[Dict]:
-        """Get meal by ID."""
+        """Get meal by ID (alias for get_by_id)."""
         meal = MealRepository.get_by_id(db, meal_id)
         return meal
     
@@ -58,11 +96,14 @@ class MealService:
         
         Returns:
             Created UserMeal object
+            
+        Raises:
+            MealNotFoundException: If meal is not found
         """
         # Get meal
         meal = MealRepository.get_by_id(db, meal_id)
         if not meal:
-            raise ValueError(f"Meal {meal_id} not found")
+            raise MealNotFoundException(meal_id)
         
         # Calculate nutrition
         nutrition = NutritionService.analyze_meal_nutrition(meal, servings)
@@ -92,7 +133,3 @@ class MealService:
         """Get meals for a user."""
         meals = UserMealRepository.get_user_meals(db, user_id, meal_date)
         return meals
-
-
-
-
