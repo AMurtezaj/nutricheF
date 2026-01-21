@@ -1,0 +1,124 @@
+/* 
+  NutriChef AI - Design System 
+  Premium, Modern, Professional
+*/
+
+:root {
+  /* 🎨 Color Palette */
+  
+  /* Primary Brand Colors */
+  --primary: #FF6B35;        /* Vibrant Orange */
+  --primary-dark: #E85A2B;
+  --primary-light: #FF8A65;
+  --primary-soft: rgba(255, 107, 53, 0.1);
+  
+  /* Secondary Brand Colors */
+  --secondary: #2EC4B6;      /* Fresh Teal */
+  --secondary-dark: #25A094;
+  --secondary-light: #5EDAD0;
+  --secondary-soft: rgba(46, 196, 182, 0.1);
+  
+  /* Accent Colors */
+  --accent: #FF9F1C;         /* Warm Yellow/Gold */
+  --danger: #FF5A5F;         /* Soft Red */
+  --success: #20E3B2;        /* Bright Green */
+  --info: #3D90E3;           /* Calm Blue */
+  
+  /* Neutral / Surface Colors */
+  --bg-app: #F4F7F9;         /* Very Light Blue-Grey Background */
+  --bg-surface: #FFFFFF;     /* Pure White Cards */
+  --bg-sidebar: #FFFFFF;
+  
+  /* Text Colors */
+  --text-primary: #1A202C;   /* Almost Black */
+  --text-secondary: #718096; /* Slate Grey */
+  --text-tertiary: #A0AEC0;  /* Light Grey */
+  --text-inverse: #FFFFFF;
+  
+  /* Borders */
+  --border-color: #E2E8F0;
+  --border-focus: var(--primary-light);
+  
+  /* 📐 Typography */
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  
+  /* 📦 Spacing */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  
+  /* 🔮 Effects */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.08);
+  
+  --transition: all 0.2s ease-in-out;
+}
+
+/* Base Resets & Typography */
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Utility Classes */
+.text-primary { color: var(--primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+
+.bg-surface { background-color: var(--bg-surface); }
+.shadow-card { box-shadow: var(--shadow-card); }
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--primary-soft);
+}

@@ -1,109 +1,157 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './components/layout/MainLayout';
 import Landing from './components/Landing';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
-import Home from './components/Home';
 import UserProfile from './components/UserProfile';
-import MealSearch from './components/MealSearch';
 import Recommendations from './components/Recommendations';
 import NutritionAnalysis from './components/NutritionAnalysis';
 import FindMeals from './components/FindMeals';
 import RecipeDetail from './components/RecipeDetail';
 import SavedMeals from './components/SavedMeals';
+import { UserProvider, useUser } from './context/UserContext';
+import './styles/design-system.css';
 import './App.css';
 
-function App() {
-  const [currentUserId, setCurrentUserId] = useState(() => {
-    // Try to get from localStorage
-    const saved = localStorage.getItem('currentUserId');
-    return saved ? parseInt(saved) : null;
-  });
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { currentUserId, loading } = useUser();
 
-  const handleSetUserId = (userId) => {
-    setCurrentUserId(userId);
-    if (userId) {
-      localStorage.setItem('currentUserId', userId.toString());
-    } else {
-      localStorage.removeItem('currentUserId');
-    }
-  };
+  if (loading) {
+    // You might want a better loading spinner here
+    return <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      backgroundColor: 'var(--bg-app)'
+    }}>Loading...</div>;
+  }
 
-  const handleLogout = () => {
-    setCurrentUserId(null);
-    localStorage.removeItem('currentUserId');
-  };
+  if (!currentUserId) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
-    <Router>
-      <div className="App">
-        {/* Navigation - only show when logged in */}
-        {currentUserId && (
-          <Navbar expand="lg" className="navbar-modern">
-            <Container>
-              <Navbar.Brand as={Link} to="/dashboard">
-                🍽️ NutriChef AI
-              </Navbar.Brand>
-              <Navbar.Toggle aria-controls="basic-navbar-nav" />
-              <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="me-auto">
-                  <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
-                  <Nav.Link as={Link} to="/meals">Find Meals</Nav.Link>
-                  <Nav.Link as={Link} to="/saved">Saved Meals</Nav.Link>
-                  <Nav.Link as={Link} to="/recommendations">Recommendations</Nav.Link>
-                  <Nav.Link as={Link} to="/nutrition">Nutrition</Nav.Link>
-                </Nav>
-                <Nav>
-                  <NavDropdown title="👤 Account" id="account-nav-dropdown">
-                    <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/settings">Settings</NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
-                  </NavDropdown>
-                </Nav>
-              </Navbar.Collapse>
-            </Container>
-          </Navbar>
-        )}
+    <MainLayout>
+      {children}
+    </MainLayout>
+  );
+};
 
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Landing />} />
-          <Route 
-            path="/login" 
-            element={<Login setCurrentUserId={handleSetUserId} />} 
-          />
-          <Route 
-            path="/register" 
-            element={<Register setCurrentUserId={handleSetUserId} />} 
-          />
-          
-          {/* Protected Routes */}
-          <Route 
-            path="/dashboard" 
-            element={<Dashboard currentUserId={currentUserId} />} 
-          />
-          <Route 
-            path="/profile" 
-            element={<UserProfile currentUserId={currentUserId} setCurrentUserId={handleSetUserId} />} 
-          />
-          <Route path="/meals" element={<FindMeals currentUserId={currentUserId} />} />
-          <Route path="/saved" element={<SavedMeals currentUserId={currentUserId} />} />
-          <Route path="/recipe/:mealId" element={<RecipeDetail currentUserId={currentUserId} />} />
-          <Route path="/recommendations" element={<Recommendations currentUserId={currentUserId} />} />
-          <Route path="/nutrition" element={<NutritionAnalysis currentUserId={currentUserId} />} />
-          
-          {/* Legacy routes */}
-          <Route path="/meal-search" element={<MealSearch currentUserId={currentUserId} />} />
-          <Route 
-            path="/home" 
-            element={<Home currentUserId={currentUserId} setCurrentUserId={handleSetUserId} />} 
-          />
-        </Routes>
-      </div>
-    </Router>
+// Route wrapper to redirect authenticated users away from public auth pages
+const PublicRoute = ({ children }) => {
+  const { currentUserId, loading } = useUser();
+
+  if (loading) return null; // Or spinner
+
+  if (currentUserId) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+function App() {
+  return (
+    <UserProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Landing />} />
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
+
+            {/* Protected Routes wrapped in MainLayout via ProtectedRoute */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/meals"
+              element={
+                <ProtectedRoute>
+                  <FindMeals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/saved"
+              element={
+                <ProtectedRoute>
+                  <SavedMeals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recipe/:mealId"
+              element={
+                <ProtectedRoute>
+                  <RecipeDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recommendations"
+              element={
+                <ProtectedRoute>
+                  <Recommendations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/nutrition"
+              element={
+                <ProtectedRoute>
+                  <NutritionAnalysis />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <div style={{ padding: '2rem' }}><h2>Settings Page (Coming Soon)</h2></div>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Legacy routes */}
+            <Route path="/meal-search" element={<Navigate to="/meals" replace />} />
+            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </UserProvider>
   );
 }
 
