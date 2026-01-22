@@ -9,7 +9,8 @@ import {
     FaMagic,
     FaUser,
     FaCog,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaCalendarAlt
 } from 'react-icons/fa';
 import '../../styles/design-system.css';
 
@@ -21,6 +22,7 @@ const Sidebar = () => {
         { path: '/dashboard', icon: FaHome, label: 'Dashboard' },
         { path: '/meals', icon: FaUtensils, label: 'Find Meals' },
         { path: '/saved', icon: FaHeart, label: 'Saved Meals' },
+        { path: '/meal-planner', icon: FaCalendarAlt, label: 'Meal Planner' },
         { path: '/recommendations', icon: FaMagic, label: 'For You' },
         { path: '/nutrition', icon: FaChartPie, label: 'Nutrition' },
     ];

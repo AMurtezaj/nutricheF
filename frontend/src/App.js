@@ -11,6 +11,7 @@ import NutritionAnalysis from './components/NutritionAnalysis';
 import FindMeals from './components/FindMeals';
 import RecipeDetail from './components/RecipeDetail';
 import SavedMeals from './components/SavedMeals';
+import MealPlanner from './components/MealPlanner';
 import { UserProvider, useUser } from './context/UserContext';
 import './styles/design-system.css';
 import './App.css';
@@ -133,6 +134,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <NutritionAnalysis />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/meal-planner"
+              element={
+                <ProtectedRoute>
+                  <MealPlanner />
                 </ProtectedRoute>
               }
             />
