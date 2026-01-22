@@ -84,6 +84,26 @@ export const aiRecipeAPI = {
     api.get('/api/ai-recipes/model/status'),
 };
 
+// Saved Meals API
+export const savedMealAPI = {
+  save: (userId, mealId, note = null) =>
+    api.post(`/api/saved-meals/users/${userId}/meals/${mealId}`, { note }),
+  unsave: (userId, mealId) =>
+    api.delete(`/api/saved-meals/users/${userId}/meals/${mealId}`),
+  getSaved: (userId, skip = 0, limit = 100) =>
+    api.get(`/api/saved-meals/users/${userId}`, { params: { skip, limit } }),
+  isSaved: (userId, mealId) =>
+    api.get(`/api/saved-meals/users/${userId}/meals/${mealId}/is-saved`),
+};
+
+// Meal Planner API
+export const mealPlannerAPI = {
+  generatePlan: (userId, days = 7, startDate = null) =>
+    api.post(`/api/meal-planner/users/${userId}/generate`, { days, start_date: startDate }),
+  getQuickPlan: (userId, days = 7) =>
+    api.get(`/api/meal-planner/users/${userId}/quick-plan`, { params: { days } }),
+};
+
 export default api;
 
 

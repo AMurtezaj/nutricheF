@@ -165,14 +165,44 @@ def add_user_meal(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/users/{user_id}/meals", response_model=List)
+@router.get("/users/{user_id}/meals")
 def get_user_meals(
     user_id: int,
     meal_date: Optional[date] = None,
     db: Session = Depends(get_db)
 ):
     """Get meals for a user, optionally filtered by date."""
-    meals = MealService.get_user_meals(db, user_id, meal_date)
-    return meals
+    user_meals = MealService.get_user_meals(db, user_id, meal_date)
+    
+    # Serialize the response manually to include meal details
+    result = []
+    for um in user_meals:
+        meal_data = {
+            "id": um.id,
+            "user_id": um.user_id,
+            "meal_id": um.meal_id,
+            "date": um.date.isoformat() if um.date else None,
+            "meal_type": um.meal_type,
+            "servings": um.servings,
+            "total_calories": um.total_calories,
+            "total_protein": um.total_protein,
+            "total_carbohydrates": um.total_carbohydrates,
+            "total_fat": um.total_fat,
+            "meal": None
+        }
+        if um.meal:
+            meal_data["meal"] = {
+                "id": um.meal.id,
+                "name": um.meal.name,
+                "category": um.meal.category,
+                "calories": um.meal.calories,
+                "protein": um.meal.protein,
+                "carbohydrates": um.meal.carbohydrates,
+                "fat": um.meal.fat
+            }
+        result.append(meal_data)
+    
+    return result
+
 
 

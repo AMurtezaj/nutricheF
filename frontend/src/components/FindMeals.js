@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaTimes, FaPlus, FaFilter, FaMagic } from 'react-icons/fa';
-import { aiRecipeAPI } from '../services/api';
+import { FaSearch, FaTimes, FaPlus, FaFilter, FaMagic, FaStar } from 'react-icons/fa';
+import { Modal, Button, Form } from 'react-bootstrap';
+import { aiRecipeAPI, savedMealAPI } from '../services/api';
 import { useUser } from '../context/UserContext';
 import PageContainer from './layout/PageContainer';
 import MealCard from './common/MealCard';
@@ -19,6 +20,12 @@ function FindMeals() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLogMealModal, setShowLogMealModal] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
+  const [userRatings, setUserRatings] = useState({});
+  // Rating modal state
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingMeal, setRatingMeal] = useState(null);
+  const [ratingValue, setRatingValue] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
   const navigate = useNavigate();
 
   // Common ingredients for selection
@@ -100,13 +107,25 @@ function FindMeals() {
     }
   };
 
-  const handleMealAction = (action, meal) => {
+  const handleMealAction = async (action, meal) => {
     if (action === 'log') {
       setSelectedMeal(meal);
       setShowLogMealModal(true);
     } else if (action === 'save') {
-      // Logic for save would go here, maybe move it to a common context or hook
-      alert('Save functionality pending common context refactor');
+      if (!currentUserId) {
+        alert('Please login to save meals');
+        return;
+      }
+      try {
+        await savedMealAPI.save(currentUserId, meal.id);
+        alert(`"${meal.name}" saved to your collection!`);
+      } catch (err) {
+        if (err.response?.status === 409) {
+          alert('This meal is already saved!');
+        } else {
+          alert('Failed to save meal. Please try again.');
+        }
+      }
     }
   };
 
@@ -366,10 +385,55 @@ function FindMeals() {
           onSuccess={() => {
             setShowLogMealModal(false);
             setSelectedMeal(null);
-            // Show toast or notification
           }}
         />
       )}
+
+      {/* Rating Modal */}
+      <Modal show={showRatingModal} onHide={() => setShowRatingModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title><FaStar color="var(--warning)" /> Rate Recipe</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {ratingMeal && (
+            <>
+              <h5>{ratingMeal.name}</h5>
+              <div style={{ margin: '20px 0' }}>
+                <p style={{ marginBottom: '10px' }}>Select your rating:</p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <FaStar
+                      key={star}
+                      size={32}
+                      style={{ cursor: 'pointer' }}
+                      color={star <= ratingValue ? '#ffc107' : '#e0e0e0'}
+                      onClick={() => setRatingValue(star)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Form.Group>
+                <Form.Label>Comment (optional)</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={ratingComment}
+                  onChange={(e) => setRatingComment(e.target.value)}
+                  placeholder="Share your thoughts about this recipe..."
+                />
+              </Form.Group>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRatingModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSubmitRating} disabled={ratingValue === 0}>
+            Submit Rating
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </PageContainer>
   );
 }

@@ -12,6 +12,7 @@ from app.controllers import (
 
 from app.controllers.saved_meal_controller import router as saved_meal_router
 from app.controllers.meal_rating_controller import router as rating_router
+from app.controllers.meal_planner_controller import router as meal_planner_router
 from app.repositories.database import init_db
 
 # Create FastAPI app
@@ -39,6 +40,7 @@ app.include_router(nutrition_router)
 app.include_router(recommendation_router)
 app.include_router(saved_meal_router)
 app.include_router(rating_router)
+app.include_router(meal_planner_router)
 
 # AI recipe router is optional - only include if available
 if ai_recipe_router:

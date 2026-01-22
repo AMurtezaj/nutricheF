@@ -20,9 +20,9 @@ const LogMealModal = ({ show, onHide, meal, userId, onSuccess }) => {
                 // Logging an existing meal
                 await mealAPI.addUserMeal(userId, {
                     meal_id: meal.id,
-                    meal_date: date,
+                    date: date,  // Backend expects 'date' not 'meal_date'
                     meal_type: mealType,
-                    servings: parseFloat(servings) // Assuming API supports servings if needed, or just logging the meal
+                    servings: parseFloat(servings)
                 });
             }
             onSuccess();
